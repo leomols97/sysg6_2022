@@ -1,0 +1,17 @@
+\section{Tables}
+
+\subsection{Table des matières}
+
+La commande tableofcontents permet d'insérer une table des matières à cet endroit. Il faut compiler deux fois le document pour que la table des matières soit correcte. Au premier passage, le compilateur crée un fichier.toc qui servira lors de la deuxième compilation.
+
+La variable tocdepth permet de fixer les niveaux repris dans la table des matières.
+
+\subsection{Table des index}
+\index{makeidx}
+\index{makeindex} 
+\index{printindex} 
+\index{index}
+En utilisant le package "makeidx", la commande makeindex permet de créer une table des index. La commande printindex permet d'insérer une table des index à cet endroit. Il faut compiler deux fois le document pour que la table des index soit correcte. Au premier passage, le compilateur crée des fichiers d'index qui serviront lors de la deuxième compilation. La commande makeindex citée ci-dessus est à exécuter entre les deux compilation.\\
+Pour qu'un terme soit repris dans la table des index, il faut utiliser la commande 
+\verb+\index{Nom de l'item}+.
+

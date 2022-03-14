@@ -1,0 +1,104 @@
+\section{Programmation}
+
+% \subsection{Variables}   REPRENDRE LES SLIDES
+% 
+% Deux sortes de variables : les entiers et les dimensions. Les dimensions sont toujours accompagnées d'une unité. (mm, cm, pt,...)
+% 
+% \subsubsection{variables}
+% \begin{itemize}
+% \item Création : 
+% \item Assignation :
+% \item Incrémentation :
+% \item Tests :
+% \end{itemize}
+% 
+% \subsubsection{variables prédéfinies}
+% \begin{itemize}
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \end{itemize}
+% 
+% \subsubsection{dimensions}
+% \begin{itemize}
+% \item Création : 
+% \item Assignation :
+% \item Incrémentation :
+% \item Tests :
+% \end{itemize}
+% 
+% \subsubsection{dimensions prédéfinies}
+% \begin{itemize}
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \item 
+% \end{itemize}
+% 
+% 
+% \section{contrôles}
+% 
+\section{commandes}
+
+\begin{verbatim}
+\newcommand{\NomCmd}[argc][def1]
+{ Commandes où les arguments s'appellent #1 #2...
+}
+ou \renewcommand...
+\end{verbatim}
+où
+\begin{itemize}
+\item NomCmd est le nom donné à la commande 
+\item argc est le nombre d'argument, 0 par défaut
+\item def1 est une valeur par défaut pour le premier argument.
+\item newcommand pour définir une nouvelle commande dont le nom n'existe pas 
+\item renewcommand pour redéfinir une commande dont le nom existe déjà 
+\end{itemize}
+
+\subsection{Exemples:}
+
+\newcommand{\EtatCivil}[3]{\textbf{#1} #2 #3}
+\EtatCivil{M.}{Albert}{Einstein}\\
+\renewcommand{\EtatCivil}[3][M.]{\textbf{#1} #2 #3}
+\EtatCivil{Albert}{Einstein}\\
+\EtatCivil[Mme]{Julio}{Curie}\\
+
+% \section{environnement}    NE FONCTIONNE PAS !!!!
+% 
+% \begin{verbatim}
+% \newenvironment{NomEnv}[argc][def1]
+% {sequenceDebut}{SectionFin} où les arguments s'appellent #1 #2...
+% \end{verbatim}
+% où
+% \begin{itemize}
+% \item NomEnv est le nom donné à l'environnement 
+% \item argc est le nombre d'argument, 0 par défaut
+% \item def1, optionnel, est une valeur par défaut pour le premier argument.
+% \item newenvironment pour définir un nouvel environnement dont le nom n'existe pas 
+% \end{itemize}
+% 
+% \subsection{Exemples:}
+% 
+% \newenvironment{MonTitre}[1]{\
+% begin{center}\textbf{#1}\\}{\end{center}}
+% 
+% \begin{MonTitre}{Première ligne}
+% Ligne deuxième
+% \end{MonTitre}
+
+

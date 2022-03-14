@@ -1,0 +1,40 @@
+\section{Mise en page}
+
+\subsection{Marges...}
+
+Une série de variables définissent la mise en page. En utilisant les packages [francais]{layout} et {fullpage}, on peut utiliser la commande layout qui permet d'ajouter une page qui dessine la présentation d'une page et les noms des variables assignées.
+
+\layout
+
+On peut ensuite modifier ce que l'on souhaite :
+\begin{verbatim}
+% Modification des marges ------------------------------
+\oddsidemargin -4mm 	% Marge de gauche -4mm
+\textwidth 17cm 	% Largeur de gauche = 17cm
+\textheight 22cm 	% Hauteur du texte = 22cm
+\parindent 0cm		% Pas d'indentation de paragraphe
+% -----------------------------------------------------
+\end{verbatim}
+
+\subsection{Niveaux}
+
+Vous avez droit à la structure
+
+\begin{list}{$\bullet$}{}
+\item part avec saut de page
+\item chapter : niveau 0
+\item section : niveau 1
+\item subsection : niveau 2
+\item subsubsection : niveau 3
+\item paragraph : niveau 4
+\item subparagraph : niveau 5
+\end{list}
+
+La variable secnumdepth permet de limiter la numérotation des niveaux. Par exemple, la valeur 5 permet d'avoir une numérotation du style 1.2.3.2.1.2 pour le subparagraph\footnote{De la même façon, on peut limiter le nombre de niveaux affichés dans une table des matières avec la variable tocdepth }. 
+(Il est toujours possible d'insérer une note de bas de page avec \verb+\footnote+)
+
+\subsection{Cadres}
+
+Il est possible d'encadrer un mot avec \fbox{box}
+
+%\shabox{On peut aussi encadrer tout un paragraphe avec l'environnement shabox à condition de déclarer le package shadow avant le début du document}.

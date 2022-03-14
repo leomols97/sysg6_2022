@@ -1,0 +1,26 @@
+\section{Couleurs à volonté}
+
+\index{RGB}
+
+\noindent 
+Le package couleur permet de définir des couleurs en donnant les quantités de rouge, de vert
+et de bleu (RGB). Ces quantités varient de 0.0 à 1.0.
+
+\begin{lstlisting}
+\definecolor{rouge}{rgb}{1.0,0.0,0.0}
+\definecolor{noir}{rgb}{0.0,0.0,0.0}
+\end{lstlisting}
+
+permettent d'utiliser ces deux nouvelles couleurs :
+
+\begin{lstlisting}
+\noindent\color{rouge}Essai de couleur\\
+\color{noir}Essai de couleur numéro 2
+\end{lstlisting}
+
+ce qui donne :
+
+\definecolor{rouge}{rgb}{1.0,0.0,0.0}
+\definecolor{noir}{rgb}{0.0,0.0,0.0}
+\noindent\color{rouge}Essai de couleur\\
+\color{noir}Essai de couleur numéro 2\\

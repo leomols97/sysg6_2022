@@ -1,0 +1,57 @@
+\section{Intégrer une source}
+\subsection{Configuration de lstlisting}
+% Le manuel se trouve dans le howto ou dans CTAN sous le nom de listings.pdf
+La commande lstset permet de fixer la présentation des sources. Il n'est pas conseillé d'utiliser utf8 pour les sources si le document n'est pas en utf8.
+\lstset{language={},%C,Assembleur, TeX, tcl, basic, cobol, fortran, logo, make, pascal, perl, prolog, {}
+	literate={â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+		 {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+		 {à}{{\`a}}1 {é}{{\'e}}1 {è}{{\`e}}1 {ù}{{\`u}}1 
+		 {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+		 {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+		 {À}{{\`A}}1 {É}{{\'E}}1 {È}{{\`E}}1 {Ù}{{\`U}}1,
+	commentstyle=\scriptsize\ttfamily\slshape, % style des commentaires
+	basicstyle=\scriptsize\ttfamily, % style par défaut
+	keywordstyle=\scriptsize\rmfamily\bfseries,% style des mots-clés
+	backgroundcolor=\color[rgb]{.95,.95,.95}, % couleur de fond : gris clair
+	framerule=0.5pt,% Taille des bords
+	frame=trbl,% Style du cadre
+	frameround=tttt, % Bords arrondis 
+	tabsize=3, % Taille des tabulations
+%	extendedchars=\true, % Incompatible avec utf8 et literate
+	inputencoding=utf8,
+	showspaces=false, % Ne montre pas les espaces 
+	showstringspaces=false, % Ne montre pas les espaces entre ''
+	xrightmargin=-1cm, % Retrait gauche 
+	xleftmargin=-1cm, % Retrait droit
+	escapechar=@}  % Caractère d'échappement, permet des commandes latex dans la source
+% -----------------------------------------------------
+\subsection{Intégrer une source dans le texte}
+\begin{lstlisting}
+/*---------------------------------------------------------------------------------------
+NOM      : Exemple.c
+CLASSE   : Applications - Latex - Illustration
+OBJET    : Sert d'exemple pour inclure une source en latex
+         : Dans ce ces, ce programme affiche Hello
+HOWTO    : gcc Exemple.c -o Exemple; ./Exemple
+AUTEUR   : J.C. Jaumain, le 3/11/2010
+BUGS     :  /
+REMARQUE : Impose lstset {escapechar=@\symbol{64}@} pour l'interprétation des balises latex
+----------------------------------------------------------------------------------------*/
+main() {
+	int i;  // Pour récupérer le nombre de caractères écrits
+	tab[10] Buffer='Hello'; // Le buffer
+	i=write(1,Buffer,5); // La @$\frac{1}{2}$@ du buffer
+	exit(0);
+}
+\end{lstlisting}
+
+L'intérêt de cette technique est de figer le source et d'avoir un document autonome
+
+\subsection{Intégrer une source d'un fichier}
+
+\lstinputlisting{Exemple.c}
+
+L'intérêt de cette technique est d'avoir un source toujours "à jour".
+
+
+

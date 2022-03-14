@@ -1,0 +1,82 @@
+\begin{document}
+\documentclass[french, a4, 10pt]{article} % si la table des matiï¿œes est petite
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+% Modification des marges ------------------------------
+\oddsidemargin -4mm 	% Marge de gauche -4mm
+\textwidth 17cm 	% Largeur de gauche = 17cm
+\textheight 22cm 	% Hauteur du texte = 22cm
+\parindent 0cm		% Pas d'indentation de paragraphe
+% -----------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage{graphicx,color, caption2}
+\usepackage{epsfig}
+\usepackage{fancyhdr}
+%\usepackage{fancyvrb}
+\usepackage{textcomp}
+\pagestyle{fancy}
+\usepackage{listings}		% pour incorporer des sources
+\usepackage[francais]{layout}	% pour obtenir le layout
+\usepackage{fullpage}		% pour obtenir le layout
+\usepackage{makeidx}		% pour créer une table d'index
+\begin{document}
+% Titres sur  chaque page -----------------------------
+\lhead{ } % Haut gauche
+%\chead{Haut centre}
+\rhead{Ecrire un rapport en latex}
+\lfoot{\copyright{Jaumain Jean-Claude}}
+\cfoot{ } % Bas centre - obligatoire !
+\rfoot{\thepage} % Bas droite
+\renewcommand{\headrulewidth}{0.4pt} 
+\renewcommand{\footrulewidth}{0.4pt} 
+% Numérotation et table des matières -----------------
+\setcounter{tocdepth}{1}    % fixe la profondeur de la table des matières
+\setcounter{secnumdepth}{5} % fixe la profondeur de la numérotation des sections et paragraph
+% Page de garde --------------------------------------
+\title{\emph{\textbf{Écrire un rapport en Latex}}}
+\author{Jaumain J-C}
+\date{15 septembre 2010}
+\maketitle
+\tableofcontents
+% Inclusion des textes
+\include{LatexSimple}
+\input{LatexMathematique} % pas de saut de page
+\input{LatexSource}
+\input{LatexTables}
+\input{LatexMiseEnPage}
+\include{LatexColor}
+\include{LatexProgramme}
+%\include{Latex}
+%\include{Latex}
+\printindex			% Impression de la table des index
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+% Titres sur  chaque page -----------------------------
+\lhead{ } % Haut gauche
+%\chead{Haut centre}
+\rhead{Ecrire un rapport en latex}
+\lfoot{\copyright{Jaumain Jean-Claude}}
+\cfoot{ } % Bas centre - obligatoire !
+\rfoot{\thepage} % Bas droite
+% Numérotation et table des matières -----------------
+\setcounter{tocdepth}{1}    % fixe la profondeur de la table des matières
+\setcounter{secnumdepth}{3} % fixe la profondeur de la numérotation des sections et paragraph
+% Page de garde ---------------------------
+\title{\emph{\textbf{Raconter en Latex}}}
+\author{M Bastreghi}
+\date{22 septembre 201}
+\maketitle
+\tableofcontents
+% Inclusion des textes
+\printindex			% Impression de la table des index
+\end{document}
