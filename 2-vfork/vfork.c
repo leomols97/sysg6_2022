@@ -7,16 +7,24 @@
 
 int main()
 {
-    int a = 10, errFils;
-    //int * adress = malloc(sizeof(int));
+    int a = 10;
+    pid_t errFils = 0;
+    int * adress = malloc(sizeof(int));
     //*adress = 10;
-    printf ("Before Forking\n");
-    printf ("%d\n", a);
-    //printf ("%d\n", adress);
+    printf ("\nBefore Forking\n");
+    printf ("Je suis le père\n");
+    printf ("a = %d\n", a);
+    printf ("Adress of malloc : %d\n", adress);
+    printf ("Valeur de retour du vfork : %d\n", errFils);
+    printf ("PID = %d\n", getpid());
+    printf ("PPID = %d\n\n", getppid());
     if ((errFils = vfork()) == 0)
     {
         a = 20;
-        exit(0); // Remplacer par "wait(0)" pour montrer la différence pour démontrer que seul le fils exécutera la suite puisque c'est le même espace d'adressage, donc, la même TDFO, donc, une fois que la variable sera changée et que le fils se sera occupé de print sur la sortie standard, le père n'aura pus à le faire car stdout ne sera plus dans la TDFO.
+        printf ("Je suis le fils\n");
+        //printf ("PID = %d\n", getpid());
+        //printf ("PPID = %d\n", getppid());
+        //exit(0); // Remplacer par "wait(0)" pour montrer la différence pour démontrer que seul le fils exécutera la suite puisque c'est le même espace d'adressage, donc, la même TDFO, donc, une fois que la variable sera changée et que le fils se sera occupé de print sur la sortie standard, le père n'aura pus à le faire car stdout ne sera plus dans la TDFO.
         
         // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
         
@@ -25,8 +33,10 @@ int main()
         // Si l'on met cette ligne en commentaire (celle avec le "exit(0)" ou le "wait(0)"), alors, une erreur de segmentation sera renvoyée
     }
     //wait(errFils);
-    //printf ("%d", getpid());
     printf ("After Forking\n");
-    printf ("%d\n", a);
-    //printf ("%d\n", adress);
+    printf ("a = %d\n", a);
+    printf ("Adress of malloc : %d\n", adress);
+    printf ("Valeur de retour du vfork : %d\n", errFils);
+    printf ("PID = %d\n", getpid());
+    printf ("PPID = %d\n\n", getppid());
 }
