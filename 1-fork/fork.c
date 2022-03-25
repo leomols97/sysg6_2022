@@ -5,7 +5,7 @@
 #include <mm_malloc.h>
 #include <spawn.h>
 
-int main()
+/*int main()
 {
     int a = 10, errFils;
     printf ("Before Forking\n");
@@ -22,4 +22,37 @@ int main()
     wait(errFils);
     printf ("After Forking\n");
     printf ("%d\n", a);
+}*/
+
+int main(int argc, char **argv) {
+
+    int a = 5, b = 8;
+    int v;
+
+    /**
+     * Le FORK duplique l'aspace d'adressage.
+     * Donc, le FORK fera les additions de son côté.
+     *  Ensuite, le fils sera exit, donc, il n'affichera pas le résultat de ses additions
+     *
+     * Du côté du père, l'addition ne sera pas faite puisqu'il exécutera seulement le code suivant le "if"
+     *
+     * Vu que l'espace d'adressage est dupliqué lors du FORK, les variables ne seront modifiées que dans
+     *  l'espace d'adressage du FILS.
+     *  Donc, les variables du père ne sont pas modifiées
+     */
+    v = fork();
+    if(v == 0) {
+        // 10
+        a = a + 5;
+        // 10
+        b = b + 2;
+        exit(0);
+    }
+    // Parent code
+    wait(0);
+    printf("PPID = %d\n", getppid());
+    printf("Value of v is %d.\n", v); // line a
+    printf("Sum is %d.\n", a + b); // line b
+    exit(0);
+
 }
