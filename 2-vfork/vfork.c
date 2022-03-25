@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
     }
     // Parent code
     wait(0);
+    printf("PID = %d\n", getpid());
     printf("PPID = %d\n", getppid());
     printf("Value of v is %d.\n", v); // line a
     printf("Sum is %d.\n", a + b); // line b
