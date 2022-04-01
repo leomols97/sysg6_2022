@@ -33,7 +33,7 @@ int main(int argc, char *argy[])
     stackhead = stack + SIZESTACK - 1;
     
     /* pid = clone(child proc, stackhead, SIGCHLD, str): */
-    pid = clone(child_proc, stacknead, CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM | CLONE_DETACHED , str):
+    pid = clone(child_proc, stackhead, CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM | CLONE_DETACHED , str);
     
     if (pid == -1)
     {
