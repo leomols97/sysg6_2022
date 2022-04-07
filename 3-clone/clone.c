@@ -8,6 +8,7 @@
        #include <stdlib.h>
        #include <unistd.h>
        #include <sys/mman.h>
+       #include <sys/mmap.h>
 
        #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                                } while (0)
