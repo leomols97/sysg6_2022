@@ -20,10 +20,14 @@
     p;                                                                         \
   })
 
+
+  size_t processNumber = 0;
 static int childFunc(void *arg __attribute__((unused)))
 {
   puts("child: start");
   sleep(2);
+  printf("Process number %ld", processNumber);
+  processNumber++;
   puts("child: terminate");
   return 0; /* Child terminates now */
 }
