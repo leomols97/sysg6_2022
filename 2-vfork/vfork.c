@@ -5,50 +5,12 @@
 #include <mm_malloc.h>
 #include <spawn.h>
 #include <string.h>
-
-/*int main()
-{
-    int a = 10;
-    pid_t errFils = 0;
-    int * adress = malloc(sizeof(int));
-    char buff[10];
-    printf ("\nBefore Forking\n");
-    printf ("Je suis le père\n");
-    printf ("a = %d\n", a);
-    printf ("Adress of malloc : %d\n", adress);
-    printf ("Valeur de retour du vfork : %d\n", errFils);
-    printf ("PID = %d\n", getpid());
-    printf ("PPID = %d\n\n", getppid());
-    if ((errFils = vfork()) == 0)
-    {
-        a = 20;
-        printf ("Je suis le fils\n");
-        char * name = "Léo";
-        strcpy(buff, *name);
-        //printf ("PID = %d\n", getpid());
-        //printf ("PPID = %d\n", getppid());
-        exit(0); // Remplacer par "wait(0)" pour montrer la différence pour démontrer que seul le fils exécutera la suite puisque c'est le même espace d'adressage, donc, la même TDFO, donc, une fois que la variable sera changée et que le fils se sera occupé de print sur la sortie standard, le père n'aura pus à le faire car stdout ne sera plus dans la TDFO.
-        
-        // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
-        
-        // Attention : le "exit(0)" le tue, mais ne l'enlève pas de la table des process et envoie un signal à son parent
-        
-        // Si l'on met cette ligne en commentaire (celle avec le "exit(0)" ou le "wait(0)"), alors, une erreur de segmentation sera renvoyée
-    }
-    //wait(errFils);
-    printf ("After Forking\n");
-    printf ("a = %d\n", a);
-    printf ("Adress of malloc : %d\n", adress);
-    printf ("Valeur de retour du vfork : %d\n", errFils);
-    printf ("PID = %d\n", getpid());
-    printf ("PPID = %d\n\n", getppid());
-}*/
-
+#include <unistd.h>
 
 int main(int argc, char **argv) {
 
     int a = 5, b = 8;
-    int v;
+    int vforkRetNum;
 
     /**
      * Le VFORK duplique l'aspace d'adressage.
@@ -63,22 +25,51 @@ int main(int argc, char **argv) {
      *  Donc, les variables du père sont modifiées,
      *   ce qui permet la prise en compte de la modification des valeurs des variables
      */
-    v = vfork();
-    if(v == 0) {
+    
+    
+    vforkRetNum = vfork();
+    if(vforkRetNum == 0) {
+        printf("I'm the child !\n");
         // a = 10
         a = a + 5;
         // b = 10
         b = b + 2;
+        
+        printf("PID = %d\n", getpid());
+        printf("PPID = %d\n", getppid());
+        //printf("Value of vfork is %d.\n", vforkRetNum); // line a
+        printf("Sum is %d.\n", a + b); // line b
+        printf("Let's do a ps to see which process is currenlty running !\n");
+        printf("Let's send kill -9 %d to try to kill the parent before the child exits !\n\n", getppid());
+        printf("CODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
+
+               "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
+               "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
+               "S    en sommeil interruptible (en attente d'un événement pour finir) ;\n"
+               "T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;\n"
+               "W    pagination (non valable depuis le noyau 2.6.xx) ;\n"
+               "X    tué (ne devrait jamais être vu) ;\n"
+               "Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.\n\n"
+
+       "Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :\n\n"
+
+               "<    haute priorité (non poli pour les autres utilisateurs) ;\n"
+               "N    basse priorité (poli pour les autres utilisateurs) ;\n"
+               "L    avec ses pages verrouillées en mémoire (pour temps réel et entrées et sorties personnalisées) ;\n"
+               "s    meneur de session ;\n"
+               "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
+               "+    dans le groupe de processus au premier plan.\n\n");
+        sleep(10);
         exit(0);
     }
     // Parent code
     wait(0);
     printf("PID = %d\n", getpid());
     printf("PPID = %d\n", getppid());
-    printf("Value of v is %d.\n", v); // line a
+    //printf("Value of vfork is %d.\n", vforkRetNum); // line a
     printf("Sum is %d.\n", a + b); // line b
-    printf("Let's do a ps to see which process is currenlty running !");
-    sleep(4000);
+    printf("Let's do a ps to see which process is currenlty running !\n");
+    sleep(10);
     exit(0);
 
 }
