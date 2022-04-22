@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
     printf("PPID = %d\n", getppid());
     printf("Value of v is %d.\n", v); // line a
     printf("Sum is %d.\n", a + b); // line b
-    sleep(4000);
     printf("Let's do a ps to see which process is currenlty running !");
+    sleep(4000);
     exit(0);
 
 }
