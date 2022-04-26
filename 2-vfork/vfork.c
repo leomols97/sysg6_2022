@@ -6,6 +6,7 @@
 #include <spawn.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 int main(int argc, char **argv) {
 
@@ -26,8 +27,9 @@ int main(int argc, char **argv) {
      *   ce qui permet la prise en compte de la modification des valeurs des variables
      */
     
-    
+
     vforkRetNum = vfork();
+
     if(vforkRetNum == 0) {
         printf("I'm the child !\n");
         // a = 10
@@ -59,7 +61,7 @@ int main(int argc, char **argv) {
                "s    meneur de session ;\n"
                "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
                "+    dans le groupe de processus au premier plan.\n\n");
-        sleep(10);
+        while(1){}
         exit(0);
     }
     // Parent code
@@ -69,7 +71,7 @@ int main(int argc, char **argv) {
     //printf("Value of vfork is %d.\n", vforkRetNum); // line a
     printf("Sum is %d.\n", a + b); // line b
     printf("Let's do a ps to see which process is currenlty running !\n");
-    sleep(10);
+    while(1){}
     exit(0);
 
 }
