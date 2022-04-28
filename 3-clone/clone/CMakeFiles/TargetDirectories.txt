@@ -1,3 +1,0 @@
-/Users/leopoldmols/Desktop/ESI/3eme/Quadri2/SYSG6/3-clone/clone/CMakeFiles/rebuild_cache.dir
-/Users/leopoldmols/Desktop/ESI/3eme/Quadri2/SYSG6/3-clone/clone/CMakeFiles/edit_cache.dir
-/Users/leopoldmols/Desktop/ESI/3eme/Quadri2/SYSG6/3-clone/clone/CMakeFiles/clone.dir

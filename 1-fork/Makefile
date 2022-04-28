@@ -3,7 +3,7 @@ all: default
 default: fork
 
 fork: fork.c Makefile
-	$(CC) -Wall -Werror -std=gnu11 -ggdb -o fork            fork.c
+	gcc -Wall fork.c -o fork
 
 clean:
 	$(RM) fork
