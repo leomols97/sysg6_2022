@@ -46,7 +46,8 @@ int main(int argc, char** argv) {
         /**
          int clone(int (*fn)(void *), void *child_stack,
                    int flags, void *arg, ...
-                   /* pid_t *ptid, struct user_desc *tls, pid_t *ctid */);
+                   pid_t *ptid, struct user_desc *tls, pid_t *ctid );
+         */
                                                                           
         /**
          Lorsque le processus enfant est créé avec clone(), il exécute la fonction fn(arg).
