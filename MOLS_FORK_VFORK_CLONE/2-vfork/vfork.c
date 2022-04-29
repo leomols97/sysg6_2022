@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     printf("b = %d\n", b);
     
     vforkRetNum = vfork();
-
+    
     if(vforkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
         printf("I'm the child !\n");
         // a = 10

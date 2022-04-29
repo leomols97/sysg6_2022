@@ -2,7 +2,7 @@ all: default
 
 default: fork
 
-fork: fork.c Makefile
+fork: fork.c
 	gcc -Wall fork.c -o fork
 
 clean:
