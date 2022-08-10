@@ -68,12 +68,12 @@ int main(int argc, char **argv) {
     	printf ("Memory locked in RAM\n");
     	
     	
-    /*signal(SIGINT, signal_handler);
+    signal(SIGINT, signal_handler);
     for(int i=1; ; i++)
     {
-    	printf("%d, Le programme est dans la fonction main");
+    	printf("%d, Le programme est dans la fonction main\n", i);
     	sleep(1);
-    }*/
+    }
     
     if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
         printf("I'm the child !\n");
