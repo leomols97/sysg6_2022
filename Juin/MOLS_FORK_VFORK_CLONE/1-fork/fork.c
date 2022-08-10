@@ -32,7 +32,7 @@ int unlock_memory(char * address, size_t size)
 
 void signal_handler(int signal_nb)
 {
-	printf("\nChange le numéro d'un signal");
+	printf("\nChange le numéro d'un signal\n");
 	signal(SIGINT, SIG_DFL);
 }
 
@@ -71,9 +71,10 @@ int main(int argc, char **argv) {
     signal(SIGINT, signal_handler);
     for(int i=1; ; i++)
     {
-    	printf("%d, Le programme est dans la fonction main\n", i);
+   	printf("%d, Le programme est dans la fonction main\n", i);
     	sleep(1);
     }
+    printf("Test\n");
     
     if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
         printf("I'm the child !\n");
