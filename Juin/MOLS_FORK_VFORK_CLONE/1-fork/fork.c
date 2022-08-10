@@ -33,7 +33,7 @@ int unlock_memory(char * address, size_t size)
 void signal_handler(int signal_nb)
 {
 	printf("\nChange le numéro d'un signal\n");
-	signal(SIGINT, SIG_DFL);
+	signal(SIGINT, SIGTTIN);
 }
 
 /**
@@ -69,6 +69,7 @@ int main(int argc, char **argv) {
     	
     	
     signal(SIGINT, signal_handler);
+    wait(30);
     for(int i=1; ; i++)
     {
    	printf("%d, Le programme est dans la fonction main\n", i);
