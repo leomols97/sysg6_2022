@@ -152,10 +152,14 @@ int main(int argc, char **argv) {
 
         printf("PID = %d\n", getpid());
         printf("PPID = %d\n", getppid());
-//        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonction créant le process
         printf("Sum a + b is %d.\n", a + b); // line b
-        printf("Let's do a 'ps' to see which process is currenlty running !\n\n");
-        printf("Let's do a 'cat /proc/$PID/status | grep VmLck' to see what memory lock is allowed to the process !\n\n");
+        printf("Dans une autre fenêtre de terminal, entrez la commande 'ps' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
+        printf("Dans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status | grep VmLck' pour voir quel memory lock est alloué au process !\n\n");
+        printf("Dans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
+        printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder."
+               + "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
+        printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande.
+               + "Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
         
         sleep(30);
         //while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
