@@ -7,48 +7,27 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/wait.h>
+
+
+// gcc -o vfork vfork.c
+
+
 
 /**
  * Le VFORK duplique l'espace d'adressage.
  * Donc, le VFORK fera les additions de son côté, mais dans l'espace d'adressage du PERE
- *  Ensuite, le fils sera exit, donc, il n'affichera pas le résultat de ses additions,
- *  mais les variables sont bien modifiées
  *
- * Du côté du père, l'addition ne sera pas faite puisqu'il partage l'espace d'adressage du FILS
+ * Du côté du père, l'addition sera faite puisqu'il partage l'espace d'adressage avec le FILS
  *
- * Vu que l'espace d'adressage n'est pas dupliqué lors du VFORK, les variables seront modifiées dans
+ * Vu que l'espace d'adressage est dupliqué lors du VFORK, les variables seront modifiées dans
  *  l'espace d'adressage du PERE (qui est aussi celui du fils)
  *  Donc, les variables du père sont modifiées,
- *   ce qui permet la prise en compte de la modification des valeurs des variables faites par le fils
+ *   ce qui permet la prise en compte de la modification des valeurs des variables, modifications§ faites par le fils
  */
-int main(int argc, char **argv) {
-
-    // Entiers à augmenter dans le fils pour prouver l'espace d'adressage commun
-    int a = 5, b = 8;
-    // Récupérer la valeur de retour de la fonction créant le proocess fils
-    int vforkRetNum;
-
-    printf("a = %d\n", a);
-    printf("b = %d\n", b);
-    
-    vforkRetNum = vfork();
-    
-    if(vforkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
-        printf("I'm the child !\n");
-        // a = 10
-        a = a + 5;
-        printf("Now, a = %d in the parent as in the child\n", a);
-
-        // b = 10
-        b = b + 2;
-        printf("Now, b = %d in the parent as in the child\n", b);
-        
-        printf("PID = %d\n", getpid());
-        printf("PPID = %d\n", getppid());
-//        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonciton créant le process
-        printf("Sum a + b is %d.\n", a + b); // line b
-        printf("Let's do a ps to see which process is currenlty running !\n\n");
-        printf("CODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
+int main(int argc, char **argv)
+{
+    printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
 
                "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
                "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
@@ -62,12 +41,46 @@ int main(int argc, char **argv) {
 
                "<    haute priorité (non poli pour les autres utilisateurs) ;\n"
                "N    basse priorité (poli pour les autres utilisateurs) ;\n"
-               "L    avec ses pages verrouillées en mémoire (pour temps réel et entrées et sorties personnalisées) ;\n"
+               "L    les pages du processus sont verrouillées en mémoire;\n"
                "s    meneur de session ;\n"
                "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
-               "+    dans le groupe de processus au premier plan.\n\n");
+               "+    dans le groupe de processus au premier plan.\n\n\n\n\n\n\n");
+               
+               
+               
+    // Entiers à augmenter dans le fils pour prouver l'espace d'adressage commun
+    int a = 5, b = 8;
+    // Récupérer la valeur de retour de la fonction créant le proocess fils
+    int vforkRetNum;
+
+    printf("PID du père = %d\n", getpid());
+    printf ("Ces 2 variables sont créées et initialisées par le père :\n");
+    printf("a = %d\n", a);
+    printf("b = %d\n", b);
+    
+    vforkRetNum = vfork();
+    
+    if(vforkRetNum == 0)
+    { // La création du fils s'est-elle correctement produite ?
+        printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
+        // a = 10
+        a = a + 5;
+        printf("Maintenant, a = %d et ce, dans l'espace d'adressage du fils qui est aussi celui du père\n", a);
+
+        // b = 10
+        b = b + 2;
+        printf("Maintenant, b = %d et ce, dans l'espace d'adressage du fils qui est aussi celui du père\n", b);
+        
+        printf("PID (du fils, donc) = %d\n", getpid());
+        printf("PID du père = %d\n", getppid());
+//        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonciton créant le process
+        printf("a + b = %d.\n", a + b); // line b
+        printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
+        
         // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
+        
+        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
+        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
         exit(0);
     }
     else if (vforkRetNum > 0)
@@ -80,13 +93,14 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     wait(0); // Pour éviter de faire du fils un zombie
-    printf("PID = %d\n", getpid());
+    printf ("Le fils est terminé\n");
+    printf("PID (du père, donc) = %d\n", getpid());
     printf("PPID = %d\n", getppid());
-    printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonction créant le process
-    // La somme est bien de 20 et non plus ni moins puisque la somme fut faite par le fils avec les mêmes variables que celles du père
-    printf("Sum a + b is %d.\n", a + b);
-    printf("Let's do a ps to see which process is currenlty running !\n");
-    while(1){} // Simplement pour faire attendre le père que l'on fasse un ps pour pouvoir voir son état
+    // La somme est bien de 20 puisque la somme fut faite par le fils avec les mêmes variables que celles du père
+    printf("a + b = %d.\n", a + b);
+    printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
+    printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
+    printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
+    while(1){} // Simplement pour faire attendre le père que l'on fasse un 'ps -aux' pour pouvoir voir son état
     exit(0);
-
 }

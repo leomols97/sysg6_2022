@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/wait.h>
 
 
 
@@ -107,7 +108,7 @@ int main(int argc, char **argv) {
     int forkRetNum;
     
     printf("PID du père = %d\n", getpid());
-    printf ("Ces 2 variables sont créées par le père :\n");
+    printf ("Ces 2 variables sont créées et initialisées par le père :\n");
     printf("a = %d\n", a);
     printf("b = %d\n", b);
     
@@ -145,7 +146,8 @@ int main(int argc, char **argv) {
     //continueProgram();
     forkRetNum = fork();
         
-    if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
+    if(forkRetNum == 0)
+    { // La création du fils s'est-elle correctement produite ?
         printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
         // a = 10 mais seulement la variable 'a' du fils et non celle du père
         a = a + 5;
@@ -160,7 +162,7 @@ int main(int argc, char **argv) {
         printf("PID (du fils, donc) = %d\n", getpid());
         printf("PID du père = %d\n", getppid());
         printf("a + b = %d.\n", a + b);
-        printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
+        printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
         printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'. Le 'L' signifie que de la mémoire est verrouillée en RAM par le process !\n\n");
         printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. "
         	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
@@ -168,10 +170,10 @@ int main(int argc, char **argv) {
                 "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
         printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
         
-        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
+        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
         
         //continueProgram();
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
+        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
         exit(0);
     }
     else if (forkRetNum > 0)
@@ -186,24 +188,24 @@ int main(int argc, char **argv) {
     // Code du père
     wait(0); // Pour éviter de faire du fils un zombie
     printf ("Le fils est terminé\n");
-    printf("PID = %d\n", getpid());
+    printf("PID (du père, donc) = %d\n", getpid());
     printf("PPID = %d\n", getppid());
     // La somme est bien de 13 et non 20 puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
     printf("a + b = %d.\n", a + b);
     printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
-    printf("Let's do a ps to see which process is currenlty running !");
+    printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
     if (unlock_memory(dataLock, dataSize) == -1)
     	perror("Error with locking memory\n");
     else
     	printf ("Memory unlocked in RAM\n");
     	
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un ps et voir quels process sont en cours d'exécution. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
         
     pthread_join(tid, NULL);
     printf("After Thread\n");
   
-    while(1){} // Simplement pour faire attendre le père. Un simple 'ps' montrera son état
+    while(1){} // Simplement pour faire attendre le père. Un simple 'ps -aux' montrera son état
   
     exit(0);
 }
