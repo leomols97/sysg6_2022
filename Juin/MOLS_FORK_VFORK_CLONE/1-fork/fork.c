@@ -1,12 +1,38 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <pthread.h>
 #include <mm_malloc.h>
 #include <spawn.h>
 #include <sys/mman.h>
 #include <signal.h>
+#include <ctype.h>
 
+
+
+// Pour compiler avec les threads :
+// gcc -pthread -o fork fork.c
+
+
+
+void continueProgram()
+{
+	printf("\nPour continuer le programme, entrez 'c'\n");
+	int c, numberCounter = 0, letterCounter = 0;
+while ((c = getchar()) != 'c')
+{
+    if (isalpha(c))
+    {
+        letterCounter++;
+    }
+    else if (isdigit(c))
+    {
+        numberCounter++;
+    }
+}
+
+}
 
 int lock_memory(char * address, size_t size)
 {
@@ -33,7 +59,16 @@ int unlock_memory(char * address, size_t size)
 void signal_handler(int signal_nb)
 {
 	printf("\nChange le numéro d'un signal\n");
-	signal(SIGINT, SIGTTIN);
+	signal(SIGINT, SIG_DFL);
+}
+
+// A normal C function that is executed as a thread
+// when its name is specified in pthread_create()
+void *threadCreation(void *vargp)
+{
+    sleep(30);
+    printf("Printing GeeksQuiz from Thread \n");
+    return NULL;
 }
 
 /**
@@ -48,7 +83,27 @@ void signal_handler(int signal_nb)
  *  Donc, les variablses du père ne sont pas modifiées
  */
 int main(int argc, char **argv) {
+    printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
 
+               "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
+               "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
+               "S    en sommeil interruptible (en attente d'un événement pour finir) ;\n"
+               "T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;\n"
+               "W    pagination (non valable depuis le noyau 2.6.xx) ;\n"
+               "X    tué (ne devrait jamais être vu) ;\n"
+               "Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.\n\n"
+
+       "Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :\n\n"
+
+               "<    haute priorité (non poli pour les autres utilisateurs) ;\n"
+               "N    basse priorité (poli pour les autres utilisateurs) ;\n"
+               "L    avec ses pages verrouillées en mémoire (pour temps réel et entrées et sorties personnalisées) ;\n"
+               "s    meneur de session ;\n"
+               "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
+               "+    dans le groupe de processus au premier plan.\n\n\n\n\n\n\n");
+               
+               
+               
     // Entiers à augmenter dans le fils pour prouver l'espace d'adressage commun
     int a = 5, b = 8;
     // Récupérer la valeur de retour de la fonction créant le proocess fils
@@ -57,8 +112,6 @@ int main(int argc, char **argv) {
     printf("a = %d\n", a);
     printf("b = %d\n", b);
     
-    forkRetNum = fork();
-    
     // A tester sur les machines de l'école : il faut que la quantité de mémoire allouée au process fils soit différente de celle allouée au process père
     int dataSize = 2048;
     char dataLock[dataSize];
@@ -66,17 +119,25 @@ int main(int argc, char **argv) {
     	perror("Error with locking memory\n");
     else
     	printf ("Memory locked in RAM\n");
+
     	
-    	
-    signal(SIGINT, signal_handler);
-    wait(30);
+    /*signal(SIGINT, signal_handler);
+    sleep(30);
     for(int i=1; ; i++)
     {
    	printf("%d, Le programme est dans la fonction main\n", i);
     	sleep(1);
-    }
-    printf("Test\n");
+    }*/
     
+    continueProgram();
+    
+    pthread_t thread_id;
+    printf("Before creating a thread with the parent\n");
+    pthread_create(&thread_id, NULL, threadCreation, NULL);
+    printf("Thread created with the parent\n");
+    
+    forkRetNum = fork();
+        
     if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
         printf("I'm the child !\n");
         // a = 10 but only the one of the chile. not the one of the parent
@@ -94,26 +155,10 @@ int main(int argc, char **argv) {
 //        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonction créant le process
         printf("Sum a + b is %d.\n", a + b); // line b
         printf("Let's do a 'ps' to see which process is currenlty running !\n\n");
-        printf("Let's do a 'cat /proc/@PID/status | grep VmLck' to see what memory lock is allowed to the process !\n\n");
-        printf("CODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
-
-               "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
-               "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
-               "S    en sommeil interruptible (en attente d'un événement pour finir) ;\n"
-               "T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;\n"
-               "W    pagination (non valable depuis le noyau 2.6.xx) ;\n"
-               "X    tué (ne devrait jamais être vu) ;\n"
-               "Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.\n\n"
-
-       "Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :\n\n"
-
-               "<    haute priorité (non poli pour les autres utilisateurs) ;\n"
-               "N    basse priorité (poli pour les autres utilisateurs) ;\n"
-               "L    avec ses pages verrouillées en mémoire (pour temps réel et entrées et sorties personnalisées) ;\n"
-               "s    meneur de session ;\n"
-               "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
-               "+    dans le groupe de processus au premier plan.\n\n");
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
+        printf("Let's do a 'cat /proc/$PID/status | grep VmLck' to see what memory lock is allowed to the process !\n\n");
+        
+        sleep(30);
+        //while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
         exit(0);
     }
     else if (forkRetNum > 0)
@@ -122,7 +167,7 @@ int main(int argc, char **argv) {
     }
     else
     { // Y a-t-il eu une erreur lors de la création du process fils ?
-        printf("Problème durant le fork\n");
+        printf("Problème durant la duplication\n");
         exit(EXIT_FAILURE);
     }
     // Parent code
@@ -139,7 +184,12 @@ int main(int argc, char **argv) {
     else
     	printf ("Memory unlocked in RAM\n");
     	
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un ps et voir quels process sont en cours d'exécution\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un ps et voir quels process sont en cours d'exécution. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
+        
+    pthread_join(thread_id, NULL);
+    printf("After Thread\n");
+  
     while(1){} // Simplement pour faire attendre le père que l'on fasse un ps pour pouvoir voir son état
+  
     exit(0);
 }
