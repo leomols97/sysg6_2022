@@ -16,7 +16,8 @@
 // gcc -pthread -o fork fork.c
 
 
-
+// Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
+// l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
 void continueProgram()
 {
 	printf("Pour continuer le programme, entrez 'continue' ou 'c' : ");
@@ -28,6 +29,7 @@ void continueProgram()
         		numberCounter++;
 }
 
+// Cette fonction permet de réserver de la mémoire en RAM
 int lock_memory(char * address, size_t size)
 {
 	//https://linuxhint.com/mlock-2-c-function/
@@ -39,6 +41,7 @@ int lock_memory(char * address, size_t size)
 	return (mlock(address, size));
 }
 
+// Cette fonction permet de libérer la mémoire réservée au process en question
 int unlock_memory(char * address, size_t size)
 {
 	//https://linuxhint.com/mlock-2-c-function/
@@ -50,14 +53,15 @@ int unlock_memory(char * address, size_t size)
 	return (munlock(address, size));
 }
 
-void signal_handler(int signal_nb)
+// Cette fonction devrait permettre de changer la valeur d'un signal d'un process
+/*void signal_handler(int signal_nb)
 {
 	printf("\nChange le numéro d'un signal\n");
 	signal(SIGINT, SIG_DFL);
-}
+}*/
 
-// A normal C function that is executed as a thread
-// when its name is specified in pthread_create()
+// Cette fonction a pour but d'être exécutée
+// lorsque son nom est spécifié comme argument dans pthread_create()
 void *threadCreation(void *arg)
 {
     printf("Fonction liée à la création de thread appelée \n");
@@ -67,10 +71,9 @@ void *threadCreation(void *arg)
 
 /**
  * Le FORK duplique l'aspace d'adressage.
- * Donc, le FORK fera les additions de son côté.
- *  Ensuite, le fils sera exit, donc, il n'affichera pas le résultat de ses additions
+ * Donc, le fils fera les additions de son côté, dans son propre espace d'adressage
  *
- * Du côté du père, l'addition ne sera pas faite puisqu'il exécutera seulement le code suivant le "if"
+ * Du côté du père, l'addition ne sera pas faite puisqu'il exécutera seulement le code suivant le "if" qui vérifie le bon code de retour de l'appel à fork()
  *
  * Vu que l'espace d'adressage est dupliqué lors du FORK, les variables ne seront modifiées que dans
  *  l'espace d'adressage du FILS.
@@ -128,27 +131,27 @@ int main(int argc, char **argv) {
     continueProgram();
     
     printf("\nCeci est avant que le père ne crée un thread\n\n");
+    
     continueProgram();
     
-    int i;
     pthread_t tid;
     // Let us create three threads
-    for (i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 3; i++)
         pthread_create(&tid, NULL, threadCreation, (void *)&tid);
  
     printf("");
-    //printf("Le thread a été créé par le père\n");
+    //printf("Les threads ont été créés par le père\n");
     
     //continueProgram();
     forkRetNum = fork();
         
     if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
         printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
-        // a = 10 but only the one of the chile. not the one of the parent
+        // a = 10 mais seulement la variable 'a' du fils et non celle du père
         a = a + 5;
         printf("Maintenant, a = %d et ce, uniquement dans l'espace d'adressage du fils\n", a);
 
-        // b = 10 but only the one of the chile. not the one of the parent
+        // b = 10 mais seulement la variable 'b' du fils et non celle du père
         b = b + 2;
         printf("Maintenant, b = %d et ce, uniquement dans l'espace d'adressage du fils\n", b);
 
@@ -180,12 +183,12 @@ int main(int argc, char **argv) {
         printf("Problème durant la duplication\n");
         exit(EXIT_FAILURE);
     }
-    // Parent code
+    // Code du père
     wait(0); // Pour éviter de faire du fils un zombie
     printf ("Le fils est terminé\n");
     printf("PID = %d\n", getpid());
     printf("PPID = %d\n", getppid());
-    // La somme est bien de 13 et non plus ni moins puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
+    // La somme est bien de 13 et non 20 puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
     printf("a + b = %d.\n", a + b);
     printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
     printf("Let's do a ps to see which process is currenlty running !");
@@ -200,7 +203,7 @@ int main(int argc, char **argv) {
     pthread_join(tid, NULL);
     printf("After Thread\n");
   
-    while(1){} // Simplement pour faire attendre le père que l'on fasse un ps pour pouvoir voir son état
+    while(1){} // Simplement pour faire attendre le père. Un simple 'ps' montrera son état
   
     exit(0);
 }
