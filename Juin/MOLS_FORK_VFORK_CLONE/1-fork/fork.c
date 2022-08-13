@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
     for (unsigned int i = 0; i < 3; i++)
         pthread_create(&tid, NULL, threadCreation, (void *)&tid);
  
-    printf("");
+    printf("%s", "");
     //printf("Les threads ont été créés par le père\n");
     
     //continueProgram();

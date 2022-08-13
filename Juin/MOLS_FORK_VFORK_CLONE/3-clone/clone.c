@@ -1,88 +1,84 @@
+// We have to define the _GNU_SOURCE to get access to clone(2) and the CLONE_*
+
 #define _GNU_SOURCE
-       #include <sys/wait.h>
-       #include <sys/utsname.h>
-       #include <sched.h>
-       #include <string.h>
-       #include <stdint.h>
-       #include <stdio.h>
-       #include <stdlib.h>
-       #include <unistd.h>
-       #include <sys/mman.h>
-       #include <sys/mmap.h>
+#include <sched.h>
+#include <sys/syscall.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-       #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
-                               } while (0)
+/**
+ child
+ */
+static int child_func(void* arg) {
+    char* buffer = (char*)arg;
+    printf("Child sees buffer = \"%s\"\n", buffer);
+    strcpy(buffer, "Hello from child");
+    return 0;
+}
 
-       static int              /* Start function for cloned child */
-       childFunc(void *arg)
-       {
-           struct utsname uts;
+/**
+ Ici, clone() est utilisé de deux manières : une fois avec le flag CLONE_VM (CLONE_VM = clone virtual memory) et une fois sans.
+ Un buffer est passé dans le processus enfant, et le processus enfant y écrit un string.
+ Une pile de taille 65536 ensuite allouée pour le processus enfant et une fonction qui vérifie si nous exécutons le fichier en utilisant l'option 'vm' (correspondant donc au flag 'CLONE_VM').
+ De plus, un buffer de 100 octets est créé dans le processus parent et une chaîne y est copiée, puis, l'appel système clone() est exécuté et les erreurs sont vérifiées.
 
-           /* Change hostname in UTS namespace of child. */
+ Lorsque d'une exécution sans l'argument 'vm' se produit, le flag CLONE_VM n'est pas actif et la mémoire virtuelle du processus parent est clonée dans le processus enfant.
+ Le processus enfant peut accéder au message passé par le processus parent dans le buffer, mais tout ce qui est écrit dans le buffer par l'enfant n'est pas accessible par processus parent puisque la mémoire virtuelle est dupliquée pour être allouée au processus enfant.
+ */
+int main(int argc, char** argv) {
+    // Alloue un stack pour la tâche du fils
+    const int STACK_SIZE = 65536;
+    char* stack = malloc(STACK_SIZE);
+    if (!stack) { // Si 'stack' n'a pas été correctement créé
+        perror("malloc");
+        exit(1);
+    }
 
-           if (sethostname(arg, strlen(arg)) == -1)
-               errExit("sethostname");
+    // Lorsqu'il est appelé avec l'argument 'vm' en ligne de commande, active le flag CLONE_VM.
+    unsigned long flags = 0;
+    if (argc > 1 && !strcmp(argv[1], "vm")) {
 
-           /* Retrieve and display hostname. */
+        /**
+         int clone(int (*fn)(void *), void *child_stack,
+                   int flags, void *arg, ...
+                   pid_t *ptid, struct user_desc *tls, pid_t *ctid );
+         */
 
-           if (uname(&uts) == -1)
-               errExit("uname");
-           printf("uts.nodename in child:  %s\n", uts.nodename);
+        /**
+         Lorsque le processus enfant est créé avec clone(), il exécute la fonction fn(arg).
+         (Cela diffère de fork(2) dans lequel l'exécution continue dans le fils à partir du point d'appel de fork(2).)
+         L'argument fn est un pointeur vers une fonction qui est appelée par le processus fils au début de son exécution. L'argument 'arg' est passé à la fonction fn.
+         */
+        /**
+         CLONE_VM (depuis Linux 2.0)
+                      Si CLONE_VM est défini, le parent et l'enfant seront exécuté dans le même espace mémoire. En particulier les écritures mémoire effectuées par le parent ou par l'enfant sont également visibles dans l'autre processus.
+                      De plus, tout mappage ou démappage de mémoire effectué avec mmap(2) ou munmap(2) par le processus enfant ou appelant également affecte l'autre processus.
 
-           /* Keep the namespace open for a while, by sleeping.
-              This allows some experimentation--for example, another
-              process might join the namespace. */
+                      Si CLONE_VM n'est pas défini, le processus enfant s'exécute dans un copie séparée de l'espace mémoire du processus appelant au moment de l'appel de clone. Les écritures effectuées par les mappages/démappages par un des processus n'affecte pas l'autre, comme avec fork(2).
+         */
+        flags |= CLONE_VM; // 'flags' vaudra 'CLONE_VM' ou non en fonction du fait que l'option 'vm' soit spécifiée ou non.
+    }
 
-           sleep(200);
+    char buffer[100];
+    strcpy(buffer, "Hello from parent"); // Ecrit 'hello from parent' dans le buffer
+    // Clone le processus père
+    // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
+    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoiire est partaé,
+    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'hello from child'
+    if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer) == -1) {
+        perror("clone");
+        exit(1);
+    }
 
-           return 0;           /* Child terminates now */
-       }
+    int status;
+    if (wait(&status) == -1) {
+        perror("wait");
+        exit(1);
+    }
 
-       #define STACK_SIZE (1024 * 1024)    /* Stack size for cloned child */
-
-       int
-       main(int argc, char *argv[])
-       {
-           char *stack;                    /* Start of stack buffer */
-           char *stackTop;                 /* End of stack buffer */
-           pid_t pid;
-           struct utsname uts;
-
-           if (argc < 2) {
-               fprintf(stderr, "Usage: %s <child-hostname>\n", argv[0]);
-               exit(EXIT_SUCCESS);
-           }
-
-           /* Allocate memory to be used for the stack of the child. */
-
-           stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
-           if (stack == MAP_FAILED)
-               errExit("mmap");
-
-           stackTop = stack + STACK_SIZE;  /* Assume stack grows downward */
-
-           /* Create child that has its own UTS namespace;
-              child commences execution in childFunc(). */
-
-           pid = clone(childFunc, stackTop, CLONE_NEWUTS | SIGCHLD, argv[1]);
-           if (pid == -1)
-               errExit("clone");
-           printf("clone() returned %jd\n", (intmax_t) pid);
-
-           /* Parent falls through to here */
-
-           sleep(1);           /* Give child time to change its hostname */
-
-           /* Display hostname in parent's UTS namespace. This will be
-              different from hostname in child's UTS namespace. */
-
-           if (uname(&uts) == -1)
-               errExit("uname");
-           printf("uts.nodename in parent: %s\n", uts.nodename);
-
-           if (waitpid(pid, NULL, 0) == -1)    /* Wait for child */
-               errExit("waitpid");
-           printf("child has terminated\n");
-
-           exit(EXIT_SUCCESS);
-       }
+    printf("Child exited with status %d. buffer = \"%s\"\n", status, buffer);
+    return 0;
+}
