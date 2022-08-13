@@ -22,12 +22,12 @@ int main()
     
     if (pid > 0)
     {  // Est-ce le process fils ?
-        printf("Ceci est le process parent et le PID est : %d\n", getpid());
+        printf("Ceci est le process fils et le PID est : %d\n", getpid());
         exit(0);
     }
     else if (pid == 0)
     {  // Est-ce le process parent ?
-        printf("Ceci est le process fils et le PID est : %d\n\n", getpid());
+        printf("Ceci est le process parent et le PID est : %d\n\n", getpid());
 
     }
     else
