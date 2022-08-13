@@ -82,3 +82,7 @@ int main(int argc, char** argv) {
     printf("Child exited with status %d. buffer = \"%s\"\n", status, buffer);
     return 0;
 }
+
+Child sees buffer = "Hello from parent"
+Child exited with status 0. buffer = "Hello from child"
+
