@@ -37,13 +37,3 @@ int main()
     }
     return 0;
 }
-
-vfork() affiche le contenu du 'if{} else{}' deux fois, d'abord dans l'enfant, puis dans le parent.
-Vu que les deux processus partagent le même espace d'adressage, la première sortie contient la valeur du PID correspondant au process fils.
-Dans le bloc if else, le processus fils est exécuté EN PREMIER car il bloque le processus parent lors de son exécution, donc, le père est MIS EN PAUSE.
-
-
-Process parent avant le 'if{} else{}': 14839
-Ceci est le process parent et le PID est : 14840
-Ceci est le process fils et le PID est : 14839
-
