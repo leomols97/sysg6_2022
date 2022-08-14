@@ -1,12 +1,12 @@
 all: default
 
-default: vfork
+default: vfork, vforkParentPAUSED
 
 vfork: vfork.c
-	gcc -Wall vfork.c -o vfork
+	gcc -pthread -o vfork vfork.c
 	
 vforkParentPAUSED: vforkParentPAUSED.c
-	gcc -Wall vforkParentPAUSED.c -o vfork
+	gcc -o vforkParentPAUSED vforkParentPAUSED.c
 
 clean:
-	$(RM) vfork
+	$(RM) vfork, vforkParentPAUSED
