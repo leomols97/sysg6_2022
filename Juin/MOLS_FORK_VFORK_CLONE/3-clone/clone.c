@@ -64,11 +64,15 @@ int main(int argc, char** argv) {
 
     char buffer[100];
     strcpy(buffer, "Hello from parent"); // Ecrit 'hello from parent' dans le buffer
+    
+    int cloneRetNum;
     // Clone le processus père
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
-    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoiire est partaé,
-    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'hello from child'
-    if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer) == -1) {
+    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
+    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child' et le fait avant que le père n'écrive "Hello from parent" puisqu'il est mis en pause
+    cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer);
+    printf("%d", cloneRetNum);
+    if (cloneRetNum == -1) {
         perror("clone");
         exit(1);
     }
@@ -79,6 +83,6 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    printf("Child exited with status %d. buffer = \"%s\"\n", status, buffer);
+    printf("Child exited with status %d. (0 = success) buffer = \"%s\n\"\n", status, buffer);
     return 0;
 }
