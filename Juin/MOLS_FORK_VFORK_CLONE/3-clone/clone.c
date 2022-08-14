@@ -1,4 +1,4 @@
-// We have to define the _GNU_SOURCE to get access to clone(2) and the CLONE_*
+// Il est nécessaire de définir _GNU_SOURCE pour avoir acces à clone(2) et aux flags CLONE_*
 
 #define _GNU_SOURCE
 #include <sched.h>
@@ -82,7 +82,3 @@ int main(int argc, char** argv) {
     printf("Child exited with status %d. buffer = \"%s\"\n", status, buffer);
     return 0;
 }
-
-Child sees buffer = "Hello from parent"
-Child exited with status 0. buffer = "Hello from child"
-
