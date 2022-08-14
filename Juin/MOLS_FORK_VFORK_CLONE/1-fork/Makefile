@@ -3,7 +3,7 @@ all: default
 default: fork
 
 fork: fork.c
-	gcc -Wall fork.c -o fork
-
+	gcc -pthread -o fork fork.c
+	
 clean:
 	$(RM) fork
