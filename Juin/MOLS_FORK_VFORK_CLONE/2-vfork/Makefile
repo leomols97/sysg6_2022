@@ -9,4 +9,5 @@ vforkParentPAUSED: vforkParentPAUSED.c
 	gcc -o vforkParentPAUSED vforkParentPAUSED.c
 
 clean:
-	$(RM) vfork, vforkParentPAUSED
+	$(RM) vfork
+	$(RM) vforkParentPAUSED
