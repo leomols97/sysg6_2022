@@ -5,7 +5,7 @@ default: clone clone2 clone2_optimized
 clone: clone.c
 	gcc -o clone clone.c
 
-clone2: clone2
+clone2: clone2.c
 	gcc -o clone2 clone2.c
 
 clone2_optimized: clone2.c Makefile
