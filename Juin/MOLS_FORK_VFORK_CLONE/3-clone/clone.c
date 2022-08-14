@@ -19,6 +19,15 @@ static int child_func(void* arg) {
     return 0;
 }
 
+// Cette fonction a pour but d'être exécutée
+// lorsque son nom est spécifié comme argument dans pthread_create()
+void *threadCreation(void *arg)
+{
+    printf("Fonction liée à la création de thread appelée \n");
+    sleep(50); // Ceci pour permettre d'avoir le temps de prouver que le fils n'hérite pas des threads du père ni en crée de nouveaux
+    return NULL;
+}
+
 /**
  Ici, clone() est utilisé de deux manières : une fois avec le flag CLONE_VM (CLONE_VM = clone virtual memory) et une fois sans.
  Un buffer est passé dans le processus enfant, et le processus enfant y écrit un string.
@@ -38,7 +47,14 @@ int main(int argc, char** argv) {
     }
 
     // Lorsqu'il est appelé avec l'argument 'vm' en ligne de commande, active le flag CLONE_VM.
-    unsigned long flags = 0;
+    unsigned long flags = CLONE_SIGHAND;
+    flags += CLONE_THREAD;
+    
+    pthread_t tid;
+    // Crée 3 threads
+    for (unsigned int i = 0; i < 3; i++)
+        pthread_create(&tid, NULL, threadCreation, (void *)&tid);
+    
     if (argc > 1 && !strcmp(argv[1], "vm")) {
 
         /**
@@ -63,12 +79,16 @@ int main(int argc, char** argv) {
     }
 
     char buffer[100];
-    strcpy(buffer, "Hello from parent"); // Ecrit 'hello from parent' dans le buffer
+    strcpy(buffer, "Hello from parent"); // Ecrit 'Hello from parent' dans le buffer
+    
+    int cloneRetNum;
     // Clone le processus père
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
-    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoiire est partaé,
-    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'hello from child'
-    if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer) == -1) {
+    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
+    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child' et le fait avant que le père n'écrive "Hello from parent" puisqu'il est mis en pause
+    cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer);
+    printf("%d", cloneRetNum);
+    if (cloneRetNum == -1) {
         perror("clone");
         exit(1);
     }

@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
     continueProgram();
     
     pthread_t tid;
-    // Let us create three threads
+    // Crée 3 threads
     for (unsigned int i = 0; i < 3; i++)
         pthread_create(&tid, NULL, threadCreation, (void *)&tid);
  
