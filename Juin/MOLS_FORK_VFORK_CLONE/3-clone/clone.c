@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     pthread_t tid;
     // Crée 3 threads
     for (unsigned int i = 0; i < 3; i++)
-        pthread_create(&tid, NULL, threadCreation, (void *)&tid);
+        //pthread_create(&tid, NULL, threadCreation, (void *)&tid);
     
     if (argc > 1 && !strcmp(argv[1], "vm")) {
 
@@ -88,9 +88,9 @@ int main(int argc, char** argv) {
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
     // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
     // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child' et le fait avant que le père n'écrive "Hello from parent" puisqu'il est mis en pause
-    cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer);
+    //cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer);
     printf("%d", cloneRetNum);
-    if (cloneRetNum == -1) {
+    if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer) == -1) {
         perror("clone");
         exit(1);
     }
