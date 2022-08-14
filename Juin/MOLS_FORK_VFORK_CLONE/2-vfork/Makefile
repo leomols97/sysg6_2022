@@ -1,6 +1,6 @@
 all: default
 
-default: vfork, vforkParentPAUSED
+default: vfork vforkParentPAUSED
 
 vfork: vfork.c
 	gcc -pthread -o vfork vfork.c
