@@ -28,6 +28,7 @@
 \usepackage{blindtext}
 \usepackage{biblatex}
 \usepackage{selinput}
+\usepackage{csquotes}
 \usepackage[pro]{fontawesome5}
 \usepackage[bookmarks,bookmarksnumbered]{hyperref}
 \hypersetup{
@@ -133,9 +134,8 @@ Au démarrage d'un système Unix, un seul processus existe (numéro 1). Tous les
 %-------------------------------------------------------------------------
 
 \section{
-    \begin{LARGE}
+    \LARGE
         fork()
-    \end{LARGE}
 }\label{fork()}
 
 \subsection{Qu'est-ce}\label{definitionFORK}
@@ -506,9 +506,8 @@ After Thread
 %-------------------------------------------------------------------------
 \newpage
 \section{
-    \begin{LARGE}
+    \LARGE
         vfork()
-    \end{LARGE}
 }\label{vfork()}
 
 \subsection{Qu'est-ce}\label{definitionVFORK}
@@ -874,16 +873,17 @@ Ceci est le process parent et le PID est : 14839
 %-------------------------------------------------------------------------
 \newpage
 \section{
-    \begin{LARGE}
+    \LARGE
         clone()
-    \end{LARGE}
 }\label{clone()}
 
 \subsection{Qu'est-ce}\label{definitionCLONE}
 \textbf{clone()} crée un nouveau processus. La fonction \textbf{clone()} a le même effet que \textbf{fork()}, sauf qu'il permet, si l'on le souhaite, de choisir si le processus enfant partage l'espace d'adressage du parent ou non.
-\\Contrairement à fork(), cet appel système fournit un contrôle plus précis sur les éléments de contexte d'exécution. Il est partagé entre le processus appelant et le processus enfant.  Cet appel système permet également au nouveau processus enfant d'être placé dans des espaces de noms.
-\\\\Quand le processus fils est créé, avec clone(), il exécute la fonction fn(arg) de l'application. (Ceci est différent de fork(2) avec lequel l'exécution continue dans le fils au point de l'appel fork(2)) L'argument fn est un pointeur sur la fonction appelée par le processus fils lors de son démarrage. L'argument arg est transmis à la fonction fn lors de son invocation.
-\\\\Quand la fonction fn(arg) revient, le processus fils se termine. La valeur entière renvoyée par fn est utilisée comme code de retour du processus fils. Ce dernier peut également se terminer de manière explicite en invoquant la fonction exit(2) ou après la réception d'un signal fatal.
+\\Contrairement à \textbf{fork()}, cet appel système fournit un contrôle plus précis sur les éléments de contexte d'exécution. Il est partagé entre le processus appelant et le processus enfant.
+\\\\Quand le processus fils est créé, avec clone(), il exécute la fonction fn(arg) de l'application. (Ceci est différent de fork(2) avec lequel l'exécution continue dans le fils au point de l'appel fork(2)) L'argument 'arg' de fn est un pointeur sur la fonction appelée par le processus fils lors de son démarrage. 'arg' est transmis à la fonction fn lors de son invocation.
+\\\\A PARLER DANS POWERPOINT
+\\\\Quand la fonction fn(arg) retourne, le processus fils se termine. La valeur entière renvoyée par fn est utilisée comme code de retour du processus fils. Ce dernier peut également se terminer de manière explicite en appelant la fonction exit(2) ou après la réception d'un signal fatal.
+\\\\A PARLER DANS POWERPOINT
 \\\\L'argument *stack indique l'emplacement de la pile utilisée par le processus fils. Comme les processus fils et appelant peuvent partager de la mémoire, il n'est généralement pas possible pour le fils d'utiliser la même pile que son père. Le processus appelant doit donc préparer un espace mémoire pour stocker la pile de son fils, et transmettre à clone() un pointeur sur cet emplacement. Les piles croissent vers le bas sur tous les processeurs implémentant Linux (sauf le HP PA), donc *stack doit pointer sur la plus haute adresse de l'espace mémoire prévu pour la pile du processus fils.
 \\\\L'octet de poids faible de flags contient le numéro du signal de terminaison qui sera envoyé au père lorsque le processus fils se terminera. Si ce signal est différent de SIGCHLD, le processus parent doit également spécifier les options \_\_WALL ou \_\_WCLONE lorsqu'il attend la fin du fils avec wait(2). Si aucun signal n'est indiqué, le processus parent ne sera pas notifié de la terminaison du fils. 
 \\\\Les \textit{flags} permet également de préciser ce qui sera partagé entre le père et le fils, en effectuant un OU binaire entre zéro ou plusieurs des constantes suivantes: \url{http://manpagesfr.free.fr/man/man2/clone.2.html}
@@ -900,13 +900,14 @@ int clone(int (*fn)(void *), void *stack, int flags, void *arg, ...
 
 \subsection{Historique}
 Peut-être que Linux aurait dû avoir un appel système de création de threads - Linux aurait alors pu s'épargner la douleur de la première implémentation de pthread pour Linux. (Beaucoup d'erreurs ont été commises sur le chemin du NPTL.) Linux aurait dû apprendre de Solaris/SVR4, où l'émulation des sockets BSD via libsocket au-dessus de STREAMS s'est avérée être une erreur qui a pris beaucoup de temps et beaucoup d'argent à corriger . L'émulation d'une API à partir d'une autre API avec des décalages d'impédance est généralement au mieux difficile.
-\\\\Depuis lors, clone(2) est devenu un couteau suisse - il a évolué pour avoir des fonctionnalités d'entrée dans les zones/prison, mais seulement en quelque sorte : Linux n'a pas de zones/prison appropriées, à la place, Linux a ajouté de nouveaux drapeaux clone(2) à pour indiquer les espaces de noms qui ne doivent pas être partagés avec le parent. Et au fur et à mesure que de nouveaux drapeaux clone(2) liés au conteneur sont ajoutés, l'ancien code pourrait souhaiter les avoir utilisés... il faudra modifier et reconstruire le monde appelant clone(2), et ce n'est décidément pas élégant.
+\\\\Depuis lors, clone(2) est devenu un couteau suisse - il a évolué pour avoir des fonctionnalités d'entrée dans les zones/prison, mais seulement en quelque sorte : Linux n'a pas de zones appropriées, à la place, Linux a ajouté de nouveaux drapeaux à clone(2) pour indiquer ce qui ne doit pas être partagé avec le parent. Et au fur et à mesure que de nouveaux drapeaux de clone(2) liés au conteneur furent ajoutés, les anciens codes ayant utilisé clone(2) pouvait souhaiter les avoir utilisés... il faudra modifier et reconstruire le monde appelant clone(2).
 
 
 \subsection{Fonctionnement}
-Quand le processus enfant est créé par  la  fonction  wrapper  clone(), il  débute  son exécution  par  un  appel  à  la  fonction  vers  laquelle pointe l'argument fn (cela est différent de fork(2), pour lequel l'exécution continue dans le processus enfant  à  partir du  moment  de l'appel de fork(2)). L'argument arg est passé comme argument de la fonction fn.
+A PARLER DANS LE POWERPOINT
+Quand le processus enfant est créé par  la  fonction clone(), il  débute  son exécution  par un appel à la fonction vers laquelle pointe l'argument fn (cela est différent de fork(2), pour lequel l'exécution continue dans le processus enfant à partir du moment de l'appel de fork(2)). L'argument 'arg' est passé comme argument de la fonction fn.
 \\\\Quand la fonction fn(arg) renvoie, le processus  enfant  se  termine. La  valeur  entière renvoyée  par  fn  est  utilisée comme code de retour du processus enfant. Ce dernier peut également se terminer de manière explicite en invoquant la fonction exit(2)  ou  après  la réception d'un signal fatal.
-\\\\L'argument  stack indique l'emplacement de la pile utilisée par le processus enfant. Comme les processus enfant et appelant peuvent partager de la mémoire, il n'est généralement pas possible  pour l'enfant d'utiliser la même pile que son parent. Le processus appelant doit donc préparer un espace mémoire pour stocker la pile de son enfant, et transmettre à clone un  pointeur sur cet emplacement. Les piles croissent vers le bas sur tous les processeurs implémentant Linux (sauf le HP PA), donc stack doit pointer sur la plus haute  adresse  de l'espace  mémoire prévu pour la pile du processus enfant. Remarquez que clone() ne fournit aucun moyen pour que l'appelant puisse informer le noyau de la taille de  la  zone  de  la pile.
+\\\\L'argument  stack indique l'emplacement de la pile utilisée par le processus enfant. Comme les processus enfant et appelant peuvent partager de la mémoire, il n'est généralement pas possible  pour l'enfant d'utiliser la même pile que son parent. Le processus appelant doit donc préparer un espace mémoire pour stocker la pile de son enfant, et transmettre à clone un  pointeur sur cet emplacement. Les piles croissent vers le bas sur tous les processeurs implémentant Linux (sauf le HP PA), donc stack doit pointer sur la plus haute  adresse  de l'espace  mémoire prévu pour la pile du processus enfant. Pourtant, clone() ne fournit aucun moyen pour que l'appelant puisse informer le noyau de la taille de  la  zone  de  la pile.
 
 \subsection{particularités}
 L'appel  système  clone3()  fournit  un  sur-ensemble  de  la fonctionnalité de l'ancienne interface de clone(). Il offre également un certain nombre d'améliorations de l'API dont : un  espace  pour  des  bits d'attributs  supplémentaires, une séparation plus propre dans l'utilisation de plusieurs paramètres et la possibilité d'indiquer la taille de la zone de la pile de l'enfant.
@@ -914,6 +915,8 @@ L'appel  système  clone3()  fournit  un  sur-ensemble  de  la fonctionnalité d
 \\\\Le paramètre cl\_args de clone3() est une structure ayant la forme suivante :
 
 \begin{lstlisting}
+
+\\\\A NE PAS PARLER DANS LE POWERPOINT
 struct clone_args {
                u64 flags;        /* Masque de bit d'attribut */
                u64 pidfd;        /* Où stocker le descripteur de fichier du PID
@@ -936,7 +939,7 @@ struct clone_args {
            };
 \end{lstlisting}
 Le paramètre size fourni à clone3() doit être initialisé à la taille de  cette  structure (l'existence   du   paramètre  size  autorise  des  extensions  futures  de  la  structure clone\_args).
-\\\\La pile du processus enfant est indiquée avec cl\_args.stack, qui pointe  vers  l'octet  le plus faible de la zone de la pile, et avec cl\_args.stack\_size, qui indique la taille de la pile en octets. Si l'attribut CLONE\_VM est indiqué (voir ci-dessous), une pile  doit  être explicitement allouée et indiquée. Sinon, ces deux champs peuvent valoir NULL et 0, ce qui amène l'enfant à utiliser la même zone de pile que son parent (dans  l'espace  d'adressage virtuel de son propre enfant).
+\\\\La pile du processus enfant est indiquée avec cl\_args.stack, qui pointe  vers  l'octet  le plus faible de la zone de la pile, et avec cl\_args.stack\_size, qui indique la taille de la pile en octets. Si l'attribut CLONE\_VM est indiqué, une pile  doit  être explicitement allouée et indiquée. Sinon, ces deux champs peuvent valoir NULL et 0, ce qui amène l'enfant à utiliser la même zone de pile que son parent (dans  l'espace  d'adressage virtuel de son propre enfant).
 
 \begin{large}
     Équivalence entre les paramètres de clone() et de clone3()
@@ -969,33 +972,7 @@ tls & tls & Voir CLONE\_SETTLS \\
 \\\\\\Signal de fin de l'enfant
 \\Quand  le  processus enfant se termine, un signal peut être envoyé au parent. Le signal de fin  est  indiqué  dans  l'octet  de   poids   faible de   flags (clone())   ou   dans cl\_args.exit\_signal (clone3()). Si ce signal est différent de SIGCHLD, le processus parent doit également spécifier les options  \_\_WALL  ou  \_\_WCLONE lorsqu'il  attend  la  fin  de l'enfant  avec  wait(2). Si aucun signal n'est indiqué (donc zéro), le processus parent ne sera pas notifié de la terminaison de l'enfant.
 
-\begin{itemize}
-    \item
-        \begin{description}
-            \item[L'espace d'adressage] est dupliqué
-        \end{description}
-    \item
-        \begin{description}
-            \item[Le processus enfant] est un duplicata exact du processus qui appelle vfork() (le processus parent), à l'exception de ce qui suit :
-                \begin{itemize}
-                    \item[$\ast$] Le processus enfant a un ID de processus (PID) unique, qui ne correspond à aucun ID de groupe de processus actif.
-                    \item[$\ast$] L'enfant a sa propre copie de la TDFO du parent. Chaque descripteur de fichier dans l'enfant fait référence au même descripteur de fichiers ouverts que le descripteur de fichier correspondant dans le parent.
-                    \item[$\ast$] L'enfant a sa propre copie des flux de répertoires ouverts du parent. Le flux de répertoires ouverts de chaque enfant peut partager le positionnement du flux de répertoires avec le flux de répertoires du parent correspondant.
-                    \item[$\ast$] L'enfant n'hérite d'aucun verrou de fichier précédemment défini par le parent.
-                    \item[$\ast$] Le processus enfant n'a pas d'alarmes définies (semblable aux résultats d'un appel à alarm() avec une valeur d'argument de 0).
-                    \item[$\ast$] L'enfant n'a pas de signaux en attente.
-                    \item[$\ast$] Les minuteries d'intervalle sont réinitialisées dans le processus enfant.
-                    \item[$\ast$] Ces éléments sont mis à 0 dans le fils : tms\_utime, tms\_stime, tms\_cutime, tms\_cstime   
-                \end{itemize}
-        \end{description}
-\end{itemize}
-\begin{large}
-    Valeur de retour
-\end{large}
- En cas de réussite, le TID du processus enfant est renvoyé dans le thread  d'exécution  de
-       l'appelant.  En  cas  d'échec, -1 est renvoyé dans le contexte de l'appelant, aucun enfant
-       n'est créé, et errno contiendra le code d'erreur.
-
+A PARLER DANS LE POWERPOINT
 \subsection{Problèmes éventuels}
 Les versions de la bibliothèque C GNU jusqu'à la 2.24 comprise  contenaient  une  fonction enveloppe  pour  getpid(2) qui effectuait un cache des PID. Ce cache nécessitait une prise en charge par l'enveloppe de clone() de la glibc, mais des limites  dans  l'implémentation faisaient  que  le  cache  pouvait  ne  pas  être  à jour sous certaines circonstances. En particulier, si un signal était distribué à un enfant juste après l'appel à clone(), alors un  appel à getpid(2) dans le gestionnaire de signaux du signal pouvait renvoyer le PID du processus appelant (le parent), si l'enveloppe de clone n'avait toujours pas eu  le temps de  mettre le cache de PID à jour pour l'enfant. (Ce point ignore le cas où l'enfant a été créé en utilisant CLONE\_THREAD, quand getpid(2) doit renvoyer la même valeur pour l'enfant et pour le processus qui a appelé clone(), puisque l'appelant et l'enfant se trouvent dans le même groupe de threads. Ce problème de cache n'apparaît pas non plus  si  le  paramètre flags  contient  CLONE\_VM.)  Pour  obtenir  la  véritable  valeur, il peut être nécessaire d'utiliser quelque chose comme ceci :
 \begin{lstlisting}
@@ -1005,7 +982,7 @@ Les versions de la bibliothèque C GNU jusqu'à la 2.24 comprise  contenaient  u
 
            mypid = syscall(SYS_getpid);
 \end{lstlisting}
-\textit{Suite à un problème ancien de cache, ainsi qu'à d'autres problèmes traités dans getpid(2), la fonctionnalité de mise en cache du PID a été supprimée de la glibc 2.25.}
+\textit{Donc, suite à un problème ancien de cache, ainsi qu'à d'autres problèmes traités dans getpid(2), la fonctionnalité de mise en cache du PID a été supprimée de la glibc 2.25.}
 \subsection{Code}
 
 \begin{lstlisting}
@@ -1134,8 +1111,9 @@ Si l’argument des flags est à 0, alors forkx() aura le même comportement que
 %----------------------------------------------------------------------------------------
 
 \section{Conclusion}
+A PARLER DANS LE POWERPOINT
 Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et appels système qui existent depuis longtemps. clone() a pris le relais de par sa puissance et sa modularité.
-\\Donc, pour tout programme un minimum lourd, il est meilleur d'implémenter clone() avec les flags nécessaires afin d'utiliser la mémoire virtuelle de manière pertinente et efficace.
+\\Donc, pour tout programme un minimum lourd, il est meilleur d'implémenter vfork() ou clone() avec les flags nécessaires afin d'utiliser la mémoire virtuelle de manière pertinente et efficace.
 
 
 
@@ -1146,7 +1124,6 @@ Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et a
 
 \section{Sources}
 \begin{sloppypar}
-\printbibliography % Output the bibliography
 \url{https://man7.org/linux/man-pages/man2/clone.2.html}\\
 \url{https://cpp.hotexamples.com/fr/examples/-/-/vfork/cpp-vfork-function-examples.html}\\
 \url{https://man7.org/linux/man-pages/man2/vfork.2.html}\\
@@ -1191,6 +1168,7 @@ Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et a
 \url{https://man7.org/linux/man-pages/man7/signal.7.html}\\
 \url{https://stackoverflow.com/questions/9361816/maximum-number-of-processes-in-linux}\\
 \url{https://www.2daygeek.com/kill-terminate-a-process-in-linux-using-kill-pkill-killall-command/}\\
+\url{https://www.baeldung.com/linux/fork-vfork-exec-clone}\\
 \end{sloppypar}
 
 \end{document}

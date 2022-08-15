@@ -94,11 +94,11 @@ int main(int argc, char** argv)
     // Clone le processus père
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
     // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
-    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child' et le fait avant que le père n'écrive "Hello from parent" puisqu'il est mis en pause
+    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child'
     cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | CLD_STOPPED | SIGCHLD, buffer);
     printf("%d", cloneRetNum);
-    processStatus(getpid());
-    processStatus(cloneRetNum);
+//    processStatus(getpid());
+//    processStatus(cloneRetNum);
     if (cloneRetNum == -1) {
         perror("clone");
         exit(1);
