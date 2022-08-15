@@ -8,15 +8,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sched.h>
+#include <linux/sched.h>
+
 
 /**
  child
  */
-static int child_func(void* arg) {
+static int child_func(void* arg)
+{
     char* buffer = (char*)arg;
     printf("Child sees buffer = \"%s\"\n", buffer);
     strcpy(buffer, "Hello from child");
     return 0;
+}
+
+void processStatus(int pid)
+{
+    char parentProcessStatus[18] = "/proc/"; // 18 car si le PID est à 5 chiffres, alors, le tableau de char sera de longueur 18
+    
+    char *num;
+    char buff[100];
+
+    // Ce if permet de concaténer un pid_t à un char *
+    if (asprintf(&num, "%d", pid) == -1) {
+        perror("asprintf");
+    } else {
+        strcat(strcpy(buff, parentProcessStatus), num);
+    }
+
+    strcat(buff, "/status");
+    if (fork() == 0)
+	    execl("/bin/cat", "cat", buff, (char *)0);
 }
 
 /**
@@ -28,7 +52,8 @@ static int child_func(void* arg) {
  Lorsque d'une exécution sans l'argument 'vm' se produit, le flag CLONE_VM n'est pas actif et la mémoire virtuelle du processus parent est clonée dans le processus enfant.
  Le processus enfant peut accéder au message passé par le processus parent dans le buffer, mais tout ce qui est écrit dans le buffer par l'enfant n'est pas accessible par processus parent puisque la mémoire virtuelle est dupliquée pour être allouée au processus enfant.
  */
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{  	
     // Alloue un stack pour la tâche du fils
     const int STACK_SIZE = 65536;
     char* stack = malloc(STACK_SIZE);
@@ -70,19 +95,23 @@ int main(int argc, char** argv) {
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
     // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
     // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child' et le fait avant que le père n'écrive "Hello from parent" puisqu'il est mis en pause
-    cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer);
+    cloneRetNum = clone(child_func, stack + STACK_SIZE, flags | CLD_STOPPED | SIGCHLD, buffer);
     printf("%d", cloneRetNum);
+    processStatus(getpid());
+    processStatus(cloneRetNum);
     if (cloneRetNum == -1) {
         perror("clone");
         exit(1);
     }
-
+    
+    printf("\n");
+    
     int status;
     if (wait(&status) == -1) {
         perror("wait");
         exit(1);
     }
 
-    printf("Child exited with status %d. (0 = success) buffer = \"%s\n\"\n", status, buffer);
+    printf("Child exited with status %d. (0 = success) \nbuffer = \"%s\"\n", status, buffer);
     return 0;
 }
