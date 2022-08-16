@@ -1,5 +1,3 @@
-Here is sample program sample_falloc.c
------------------------------------------------------------------------------
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -87,4 +85,3 @@ int main(int argc,char **argv)
     }
     return rc;
 }
--------------------------------------------------------------------------------
