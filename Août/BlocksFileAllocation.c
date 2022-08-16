@@ -1,11 +1,12 @@
 Here is sample program sample_falloc.c
 -----------------------------------------------------------------------------
 #include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h>
 #include <sys/errno.h>
 #include <sys/types.h>
 #include <string.h>
 #include <fcntl.h>
-#include <j2/j2_cntl.h>
 #include <unistd.h>
 
 int main(int argc,char **argv)
