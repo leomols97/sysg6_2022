@@ -8,6 +8,10 @@
 %
 % Authors:
 % Léopold Mols
+%
+% ATTENTION :
+% Pour pouvoir bénéficier de la table des matières, des liens,... Il faut compiler plusieurs fois le fichier template.tex au moyen de la commande 'pdflatex fork_vfork_clone.tex'
+%
 % Linux and Unix Users Group at Virginia Tech Wiki
 %
 % License:
@@ -28,6 +32,7 @@
 \usepackage{blindtext}
 \usepackage{biblatex}
 \usepackage{selinput}
+\usepackage{minted}
 \usepackage{csquotes}
 \usepackage[pro]{fontawesome5}
 \usepackage[bookmarks,bookmarksnumbered]{hyperref}
@@ -112,7 +117,9 @@
 
 \begin{document}
 
-\maketitle % Insert the title, author and date using the information specified above
+\maketitle
+
+\begin{sloppypar}
 
 \begin{center}
 	\begin{tabular}{l r}
@@ -213,212 +220,8 @@ Ce code effectue une addition de 2 variables par le fils pour prouver que seules
 \\ Enfin, il prouve que les verrous de mémoire ne sont pas transmis au fils.
 \end{normalsize}
 
-\begin{lstlisting}
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <pthread.h>
-#include <mm_malloc.h>
-#include <spawn.h>
-#include <sys/mman.h>
-#include <signal.h>
-#include <ctype.h>
-#include <string.h>
-
-
-
-// Pour compiler avec les threads :
-// gcc -pthread -o fork fork.c
-
-
-
-void continueProgram()
-{
-	printf("Pour continuer le programme, entrez 'continue' ou 'c' : ");
-	int c, numberCounter = 0, letterCounter = 0;
-	while ((c = getchar()) != 'c')
-    		if (isalpha(c))
-        		letterCounter++;
-    		else if (isdigit(c))
-        		numberCounter++;
-}
-
-int lock_memory(char * address, size_t size)
-{
-	//https://linuxhint.com/mlock-2-c-function/
-	unsigned long page_offset, page_size;
-	page_size = sysconf(_SC_PAGE_SIZE);
-	page_offset = (unsigned long) address % page_size;
-	address -= page_offset; // ajuste l'adresse à la limite de la page
-	size += page_offset; // ajuste la taille avec l'offset de la page
-	return (mlock(address, size));
-}
-
-int unlock_memory(char * address, size_t size)
-{
-	//https://linuxhint.com/mlock-2-c-function/
-	unsigned long page_offset, page_size;
-	page_size = sysconf(_SC_PAGE_SIZE);
-	page_offset = (unsigned long) address % page_size;
-	address -= page_offset; // ajuste l'adresse à la limite de la page
-	size += page_offset; // ajuste la taille avec l'offset de la page
-	return (munlock(address, size));
-}
-
-void signal_handler(int signal_nb)
-{
-	printf("\nChange le numéro d'un signal\n");
-	signal(SIGINT, SIG_DFL);
-}
-
-// Fonction exécutée comme un thread
-// lorsque son nom est présent comme argument dans l'appel 'pthread_create'
-void *threadCreation(void *arg)
-{
-    printf("Fonction liée à la création de thread appelée \n");
-    sleep(50); // Ceci pour permettre d'avoir le temps de prouver que le fils n'hérite pas des threads du père ni en crée de nouveaux
-    return NULL;
-}
-
-/**
- * Le FORK duplique l'espace d'adressage.
- * Donc, le process créé par FORK fera les additions de son côté.
- *  Ensuite, le fils sera exit, donc, il n'affichera pas le résultat de ses additions
- *
- * Du côté du père, l'addition ne sera pas faite puisqu'il exécutera seulement le code suivant le "if"
- *
- * Vu que l'espace d'adressage est dupliqué lors du FORK, les variables ne seront modifiées que dans
- *  l'espace d'adressage du FILS.
- *  Donc, les variablses du père ne sont pas modifiées
- */
-int main(int argc, char **argv) {
-    printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête "STAT" ou "S") afficheront pour décrire l'état d'un processus :\n\n"
-
-               "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
-               "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
-               "S    en sommeil interruptible (en attente d'un événement pour finir) ;\n"
-               "T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;\n"
-               "W    pagination (non valable depuis le noyau 2.6.xx) ;\n"
-               "X    tué (ne devrait jamais être vu) ;\n"
-               "Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.\n\n"
-
-       "Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :\n\n"
-
-               "<    haute priorité (prioritaire par rapport aux autre utilisateurs) ;\n"
-               "N    basse priorité (non prioritaire par rapport aux autres utilisateurs) ;\n"
-               "L    les pages du processus sont verrouillées en mémoire;\n"
-               "s    meneur de session ;\n"
-               "l    possède plusieurs processus légers ("multi-thread", utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
-               "+    dans le groupe de processus au premier plan.\n\n\n\n\n\n\n");
-               
-               
-               
-    // Entiers à incrémenter dans le fils pour prouver l'espace d'adressage commun
-    int a = 5, b = 8;
-    // Récupérer la valeur de retour de la fonction créant le proocess fils
-    int forkRetNum;
-    
-    printf("PID du père = %d\n", getpid());
-    printf ("Ces 2 variables sont créées par le père :\n");
-    printf("a = %d\n", a);
-    printf("b = %d\n", b);
-    
-    // A tester sur les machines de l'école : il faut que la quantité de mémoire allouée au process fils soit différente de celle allouée au process père
-    int dataSize = 2048;
-    char dataLock[dataSize];
-    if (lock_memory(dataLock, dataSize) == -1)
-    	perror("Error with locking memory\n");
-    else
-    	printf ("\nDe la mémoire a été réservée en RAM par le père\n");
-
-    	
-    /*signal(SIGINT, signal_handler);
-    sleep(30);
-    for(int i=1; ; i++)
-    {
-   	printf("%d, Le programme est dans la fonction main\n", i);
-    	sleep(1);
-    }*/
-    
-    continueProgram();
-    
-    printf("\nCeci est avant que le père ne crée un thread\n\n");
-    continueProgram();
-    
-    int i;
-    pthread_t tid;
-    // Let us create three threads
-    for (i = 0; i < 3; i++)
-        pthread_create(&tid, NULL, threadCreation, (void *)&tid);
- 
-    printf("%s", "");
-    
-    forkRetNum = fork();
-        
-    if(forkRetNum == 0) { // La création du fils s'est-elle correctement produite ?
-        printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
-        // a = 10 but only the one of the chile. not the one of the parent
-        a = a + 5;
-        printf("Maintenant, a = %d et ce, uniquement dans l'espace d'adressage du fils\n", a);
-
-        // b = 10 but only the one of the chile. not the one of the parent
-        b = b + 2;
-        printf("Maintenant, b = %d et ce, uniquement dans l'espace d'adressage du fils\n", b);
-
-	//lock_memory();
-
-        printf("PID (du fils, donc) = %d\n", getpid());
-        printf("PID du père = %d\n", getppid());
-        printf("a + b = %d.\n", a + b);
-        printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-        printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'. Le 'L' signifie que de la mémoire est verrouillée en RAM par le process !\n\n");
-        printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. "
-        	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
-        printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
-                "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
-        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
-        
-        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
-        
-        //continueProgram();
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple ps le montrera
-        exit(0);
-    }
-    else if (forkRetNum > 0)
-    {  // Est-ce le process parent ?
-        printf("Ceci est le process parent et le PID est : %d\n", getpid());
-    }
-    else
-    { // Y a-t-il eu une erreur lors de la création du process fils ?
-        printf("Problème durant la duplication\n");
-        exit(EXIT_FAILURE);
-    }
-    // Parent code
-    wait(0); // Pour éviter de faire du fils un zombie
-    printf ("Le fils est terminé\n");
-    printf("PID = %d\n", getpid());
-    printf("PPID = %d\n", getppid());
-    // La somme est bien de 13 et non plus ni moins puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
-    printf("a + b = %d.\n", a + b);
-    printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
-    printf("Let's do a ps to see which process is currenlty running !");
-    
-    if (unlock_memory(dataLock, dataSize) == -1)
-    	perror("Error with locking memory\n");
-    else
-    	printf ("Memory unlocked in RAM\n");
-    	
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un ps et voir quels process sont en cours d'exécution. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
-        
-    pthread_join(tid, NULL);
-    printf("After Thread\n");
-  
-    while(1){} // Simplement pour faire attendre le père que l'on fasse un ps pour pouvoir voir son état
-  
-    exit(0);
-}
-\end{lstlisting}
+\inputminted[linenos, fontsize=\small, breaklines]{c}{codes/fork.c}
+\newpage
 \subsection{Resultat}
 \begin{lstlisting}
 CODES D'ÉTAT DE PROCESSUS 
@@ -563,169 +366,14 @@ Toutes les pages de manuel vfork(2) vues indiquent que le processus parent est a
 \\\\\texttt{A PARLER SUR POWERPOINT}
 \\\\vfork() a un inconvénient : le parent (en particulier : le thread dans le parent qui appelle vfork()) et l'enfant partagent une pile, ce qui nécessite que le parent (thread) soit arrêté jusqu'à ce que l'enfant appelle \_exit() ou une fonction de la famille exec(). (Cela peut être pardonné en raison des longs threads précédents de vfork(2) -- lorsque les threads sont apparus, le besoin d'une pile séparée pour chaque nouveau thread est devenu tout à fait clair et inévitable. La solution pour les threads était d'utiliser une nouvelle pile).
 
-
+\newpage
 \subsection{Code prouvant l'espace d'adressage partagé}
 \begin{normalsize}
 Ce code effectue une addition de 2 variables par le fils pour prouver que les variables du père sont modifiées par le fils puisque le père et le fils partagent le même espace d'adressage.
 \\Il prouve également que les threads créés par le père ne sont pas transmis au fils ou recréés pour être attribués au fils.
 \end{normalsize}
 
-\begin{lstlisting}
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <mm_malloc.h>
-#include <spawn.h>
-#include <string.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <signal.h>
-
-
-// gcc -o vfork vfork.c
-// Pour compiler avec les threads : gcc -pthread -o vfork vfork.c
-
-
-
-// Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
-// l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
-void continueProgram()
-{
-	printf("Pour continuer le programme, entrez 'continue' ou 'c' : ");
-	int c, numberCounter = 0, letterCounter = 0;
-	while ((c = getchar()) != 'c')
-    		if (isalpha(c))
-        		letterCounter++;
-    		else if (isdigit(c))
-        		numberCounter++;
-}
-
-// Cette fonction a pour but d'être exécutée
-// lorsque son nom est spécifié comme argument dans pthread_create()
-void *threadCreation(void *arg)
-{
-    printf("Fonction liée à la création de thread appelée \n");
-    sleep(50); // Ceci pour permettre d'avoir le temps de prouver que le fils n'hérite pas des threads du père ni en crée de nouveaux
-    return NULL;
-}
-
-/**
- * Le VFORK ne duplique pas l'espace d'adressage du père.
- * Donc, le VFORK fera les additions de son côté, mais dans l'espace d'adressage du PERE.
- *
- * Du côté du père, l'addition sera faite puisqu'il partage l'espace d'adressage avec le FILS.
- *
- * Vu que l'espace d'adressage est dupliqué lors du VFORK, les variables seront modifiées dans l'espace d'adressage du PERE (qui est aussi celui du fils)
- *  Donc, les variables du père sont modifiées, ce qui permet la prise en compte de la modification des valeurs des variables, modifications faites par le fils
- */
-int main(int argc, char **argv)
-{
-    printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête "STAT" ou "S") afficheront pour décrire l'état d'un processus :\n\n"
-
-               "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
-               "R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;\n"
-               "S    en sommeil interruptible (en attente d'un événement pour finir) ;\n"
-               "T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;\n"
-               "W    pagination (non valable depuis le noyau 2.6.xx) ;\n"
-               "X    tué (ne devrait jamais être vu) ;\n"
-               "Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.\n\n"
-
-       "Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :\n\n"
-
-               "<    haute priorité (non poli pour les autres utilisateurs) ;\n"
-               "N    basse priorité (poli pour les autres utilisateurs) ;\n"
-               "L    les pages du processus sont verrouillées en mémoire;\n"
-               "s    meneur de session ;\n"
-               "l    possède plusieurs processus légers ("multi-thread", utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
-               "+    dans le groupe de processus au premier plan.\n\n\n\n\n\n\n");
-               
-               
-               
-    // Entiers à incrémenter dans le fils pour prouver l'espace d'adressage commun
-    int a = 5, b = 8;
-    // Récupérer la valeur de retour de la fonction créant le proocess fils
-    int vforkRetNum;
-
-    printf("PID du père = %d\n", getpid());
-    printf ("Ces 2 variables sont créées et initialisées par le père :\n");
-    printf("a = %d\n", a);
-    printf("b = %d\n", b);
-    
-    continueProgram();
-    
-    printf("\nCeci est avant que le père ne crée un thread\n\n");
-    
-    continueProgram();
-    
-    pthread_t tid;
-    // Let us create three threads
-    for (unsigned int i = 0; i < 3; i++)
-        pthread_create(&tid, NULL, threadCreation, (void *)&tid);
- 
-    printf("%s", "");
-    
-    vforkRetNum = vfork();
-    
-    if(vforkRetNum == 0)
-    { // La création du fils s'est-elle correctement produite ?
-        printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
-        // a = 10
-        a = a + 5;
-        printf("Maintenant, a = %d et ce, dans l'espace d'adressage du fils qui est aussi celui du père\n", a);
-
-        // b = 10
-        b = b + 2;
-        printf("Maintenant, b = %d et ce, dans l'espace d'adressage du fils qui est aussi celui du père\n", b);
-        
-        printf("PID (du fils, donc) = %d\n", getpid());
-        printf("PID du père = %d\n", getppid());
-//        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonciton créant le process
-        printf("a + b = %d.\n", a + b); // line b
-        printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-	printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'.\nLe 'L' signifie que de la mémoire est verrouillée en RAM par le process !\nLe 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés\n\n");
-        printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. "
-        	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
-        printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
-                "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
-        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
-        
-        // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
-        
-        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-        exit(0);
-    }
-    else if (vforkRetNum > 0)
-    {  // Est-ce le process parent ?
-        printf("Ceci est le process parent et le PID est : %d\n", getpid());
-    }
-    else
-    { // Y a-t-il eu une erreur lors de la création du process fils ?
-        printf("Problème durant le vfork\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    wait(0); // Pour éviter de faire du fils un zombie
-    printf ("Le fils est terminé\n");
-    printf("PID (du père, donc) = %d\n", getpid());
-    printf("PPID = %d\n", getppid());
-    // La somme est bien de 20 puisque la somme fut faite par le fils avec les mêmes variables que celles du père
-    printf("a + b = %d.\n", a + b);
-    printf("Vu que a + b = 20 dans le fils et que a + b = 20 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de vfork est celui du père car il est partagé avec le père.\n");
-    printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-    
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
-        
-    pthread_join(tid, NULL);
-    printf("After Thread\n");
-    
-    while(1){} // Simplement pour faire attendre le père que l'on fasse un 'ps -aux' pour pouvoir voir son état
-    exit(0);
-}
-\end{lstlisting}
+\inputminted[linenos, fontsize=\small, breaklines]{c}{codes/vfork.c}
 \subsection{Résultat}
 \begin{lstlisting}
 CODES D'ÉTAT DE PROCESSUS 
@@ -802,52 +450,14 @@ Le programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et vo
 Terminated
 
 \end{lstlisting}
+
+\newpage
 \subsection{Code prouvant que le parent est mis en pause}
 \begin{normalsize}
 Ce code effectue un affichage par le père et par le fils. Le fait que le fils effectue le sien en premier et le père en second prouve que le père est mis en pause.
 \end{normalsize}
-\begin{lstlisting}
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-/**
- vfork() affiche le contenu du 'if{} else{}' deux fois, d'abord dans l'enfant, puis dans le parent.
- Vu que les deux processus partagent le même espace d'adressage, la première sortie contient la valeur du PID correspondant au process fils.
- Dans le bloc if else, le processus fils est exécuté EN PREMIER car il bloque le processus parent lors de son exécution, donc, le père est MIS EN PAUSE.
- */
-int main()
-{
-
-    printf("\n\n\nvfork() affiche le contenu du 'if{} else{}' deux fois, d'abord dans l'enfant, puis dans le parent.\n"
-        "Vu que les deux processus partagent le même espace d'adressage, la première sortie contient la valeur du PID correspondant au process fils.\n"
-        "Dans le bloc if else, le processus fils est exécuté EN PREMIER car il bloque le processus parent lors de son exécution, donc, le père est MIS EN PAUSE.\n\n\n");
-    //pid_t pid = vfork();  // Crée le process fils
-
-    printf("Process fils avant le 'if{} else{}': %d\n", getpid());
-
-    pid_t pid = vfork();  // Crée le process fils
-    
-    if (pid > 0)
-    {  // Est-ce le process fils ?
-        printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        exit(0);
-    }
-    else if (pid == 0)
-    {  // Est-ce le process parent ?
-        printf("Ceci est le process fils et le PID est : %d\n\n", getpid());
-
-    }
-    else
-    { // Y a-t-il eu une erreur lors de la création du process fils ?
-        printf("Problème durant le fork\n");
-        exit(EXIT_FAILURE);
-    }
-    return 0;
-}
-
-\end{lstlisting}
+\inputminted[linenos, fontsize=\small, breaklines]{c}{codes/vforkParentPAUSED.c}
+\newpage
 \subsection{Résultat}
 \begin{lstlisting}
 
@@ -985,91 +595,9 @@ Les versions de la bibliothèque C GNU jusqu'à la 2.24 comprise  contenaient  u
 \textit{Donc, suite à un problème ancien de cache, ainsi qu'à d'autres problèmes traités dans getpid(2), la fonctionnalité de mise en cache du PID a été supprimée de la glibc 2.25.}
 \subsection{Code}
 
-\begin{lstlisting}
-// Il est nécessaire de définir _GNU_SOURCE pour avoir acces à clone(2) et aux flags CLONE_*
+\inputminted[linenos, fontsize=\small, breaklines]{c}{codes/clone.c}
 
-#define _GNU_SOURCE
-#include <sched.h>
-#include <sys/syscall.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-static int child_func(void* arg) {
-    char* buffer = (char*)arg;
-    printf("Child sees buffer = \"%s\"\n", buffer);
-    strcpy(buffer, "Hello from child");
-    return 0;
-}
-
-/**
- Ici, clone() est utilisé de deux manières : une fois avec le flag CLONE_VM (CLONE_VM = clone virtual memory) et une fois sans.
- Un buffer est passé dans le processus enfant, et le processus enfant y écrit un string.
- Une pile de taille 65536 ensuite allouée pour le processus enfant et une fonction qui vérifie si nous exécutons le fichier en utilisant l'option 'vm' (correspondant donc au flag 'CLONE_VM').
- De plus, un buffer de 100 octets est créé dans le processus parent et une chaîne y est copiée, puis, l'appel système clone() est exécuté et les erreurs sont vérifiées.
-
- Lorsque d'une exécution sans l'argument 'vm' se produit, le flag CLONE_VM n'est pas actif et la mémoire virtuelle du processus parent est clonée dans le processus enfant.
- Le processus enfant peut accéder au message passé par le processus parent dans le buffer, mais tout ce qui est écrit dans le buffer par l'enfant n'est pas accessible par processus parent puisque la mémoire virtuelle est dupliquée pour être allouée au processus enfant.
- */
-int main(int argc, char** argv) {
-    // Alloue un stack pour la tâche du fils
-    const int STACK_SIZE = 65536;
-    char* stack = malloc(STACK_SIZE);
-    if (!stack) { // Si 'stack' n'a pas été correctement créé
-        perror("malloc");
-        exit(1);
-    }
-
-    // Lorsqu'il est appelé avec l'argument 'vm' en ligne de commande, active le flag CLONE_VM.
-    unsigned long flags = 0;
-    if (argc > 1 && !strcmp(argv[1], "vm")) {
-
-        /**
-         int clone(int (*fn)(void *), void *child_stack,
-                   int flags, void *arg, ...
-                   pid_t *ptid, struct user_desc *tls, pid_t *ctid );
-         */
-
-        /**
-         Lorsque le processus enfant est créé avec clone(), il exécute la fonction fn(arg).
-         (Cela diffère de fork(2) dans lequel l'exécution continue dans le fils à partir du point d'appel de fork(2).)
-         L'argument fn est un pointeur vers une fonction qui est appelée par le processus fils au début de son exécution. L'argument 'arg' est passé à la fonction fn.
-         */
-        /**
-         CLONE_VM (depuis Linux 2.0)
-                      Si CLONE_VM est défini, le parent et l'enfant seront exécuté dans le même espace mémoire. En particulier les écritures mémoire effectuées par le parent ou par l'enfant sont également visibles dans l'autre processus.
-                      De plus, tout mappage ou démappage de mémoire effectué avec mmap(2) ou munmap(2) par le processus enfant ou appelant également affecte l'autre processus.
-
-                      Si CLONE_VM n'est pas défini, le processus enfant s'exécute dans un copie séparée de l'espace mémoire du processus appelant au moment de l'appel de clone. Les écritures effectuées par les mappages/démappages par un des processus n'affecte pas l'autre, comme avec fork(2).
-         */
-        flags |= CLONE_VM; // 'flags' vaudra 'CLONE_VM' ou non en fonction du fait que l'option 'vm' soit spécifiée ou non.
-    }
-
-    char buffer[100];
-    strcpy(buffer, "Hello from parent"); // Ecrit 'hello from parent' dans le buffer
-    // Clone le processus père
-    // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
-    // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoiire est partaé,
-    // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'hello from child'
-    if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buffer) == -1) {
-        perror("clone");
-        exit(1);
-    }
-
-    int status;
-    if (wait(&status) == -1) {
-        perror("wait");
-        exit(1);
-    }
-
-    printf("Child exited with status %d. buffer = \"%s\"\n", status, buffer);
-    return 0;
-}
-
-\end{lstlisting}
-
+\newpage
 \subsection{Résultats}
 \subsubsection{./clone}
 \begin{lstlisting}
@@ -1171,4 +699,5 @@ Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et a
 \url{https://www.baeldung.com/linux/fork-vfork-exec-clone}\\
 \end{sloppypar}
 
+\end{sloppypar}
 \end{document}
