@@ -18,7 +18,7 @@
 
 
 // Nombre de duplication qui seront effectuées
-int nbForks = 100;
+int nbForks = 10;
 
 // Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
 // l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
