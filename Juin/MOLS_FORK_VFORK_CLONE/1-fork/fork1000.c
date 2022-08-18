@@ -59,27 +59,20 @@ int unlock_memory(char * address, size_t size)
 
 void write_into_file()
 {
-    FILE *in_file  = fopen("fork1000.txt", "r"); // read only
     FILE *out_file = fopen("fork1000.txt", "w"); // write only
     
     // test for files not existing.
-    if (in_file == NULL || out_file == NULL)
+    if (out_file == NULL)
     {
         printf("Error! Could not open file\n");
         exit(-1); // must include stdlib.h
     }
     
     // write to file vs write to screen
-    fprintf(file, "This is a test for the fork with %d processes %d\n", nbForks, integer); // write to file
+    fprintf(out_file, "This is a test for the fork with %d processes\n", nbForks); // write to file
     
-    fprintf(stdout, "This is a test for the fork with %d processes %d\n", nbForks, integer); // write to screen
-    printf(         "This is a test for the fork with %d processes %d\n", nbForks, integer); // write to screen
-    
-    // read from file/keyboard. remember the ampersands!
-    fscanf(file, "%d %d", &int_var_1, &int_var_2);
-    
-    fscanf(stdin, "%d %d", &int_var_1, &int_var_2);
-    scanf(        "%d %d", &int_var_1, &int_var_2);
+    fprintf(stdout, "This is a test for the fork with %d processes\n", nbForks); // write to screen
+    printf(         "This is a test for the fork with %d processes\n", nbForks); // write to screen
 }
 
 
