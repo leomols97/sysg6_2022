@@ -19,7 +19,7 @@
 
 
 // Nombre de duplication qui seront effectuées via 'fork'
-int nbForks = 10;
+int nbForks = 1;
 
 /**
  Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
@@ -46,7 +46,7 @@ void continueProgram()
 void write_into_file(char fileName[], int fileNameSize, char whatToWrite[])
 {
     char nameOfFile = fileName[fileNameSize];
-    FILE * forksOutFilePointer = fopen(fileName,"a");
+    FILE * forksOutFilePointer = fopen(fileName, "a");
     fputs(whatToWrite, forksOutFilePointer);
     fclose(forksOutFilePointer);
 }
@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
     char fileName[15];
     // Construit le nom du fichier dans lequel le programme va écrire
     snprintf(fileName, sizeof(fileName), "fork%d.txt", nbForks);
+    remove(fileName); // Pour avoir un fichier vide et pouvoir écrire en mode append dedans
     
     printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
            
@@ -122,13 +123,6 @@ int main(int argc, char **argv) {
     printf("a = %d\n", a);
     printf("b = %d\n", b);
     
-    int dataSize = 2048;
-    char dataLock[dataSize];
-    if (lock_memory(dataLock, dataSize) == -1)
-        perror("Error with locking memory\n");
-    else
-        printf ("\nDe la mémoire a été réservée en RAM par le père\n");
-    
     continueProgram();
     
     printf("\nCeci est avant que le père ne crée un thread\n\n");
@@ -146,13 +140,13 @@ int main(int argc, char **argv) {
     //continueProgram();
     for (unsigned int i = 0; i < nbForks; i++)
     {
-        remove(fileName); // To have an empty file
         write_into_file(fileName, fileNameSize, " Parent ");
-        forkRetNums[i]  = fork();
+        forkRetNums[i] = vfork();
         
+        write_into_file(fileName, fileNameSize, " Fils\n");
         if(forkRetNums[i] == 0)
         {
-            write_into_file(fileName, fileNameSize, " Fils ");
+//            write_into_file(fileName, fileNameSize, " Fils\n");
             printf("Ceci est le process fils et le PID est : %d\n", getpid());
             
             //continueProgram();
@@ -178,11 +172,6 @@ int main(int argc, char **argv) {
     printf("a + b = %d.\n", a + b);
     printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-    
-    if (unlock_memory(dataLock, dataSize) == -1)
-        perror("Error with locking memory\n");
-    else
-        printf ("Memory unlocked in RAM\n");
     
     printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
     
