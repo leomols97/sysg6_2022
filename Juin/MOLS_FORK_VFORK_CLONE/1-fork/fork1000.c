@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     int a = 5, b = 8;
     
     // Nombre de duplication qui seront effectuées
-    int nbForks = 100;
+    int nbForks = 5;
     
     // Récupérer la valeur de retour des fork
     int forkRetNums[10];
@@ -143,7 +143,9 @@ int main(int argc, char **argv) {
         forkRetNums[i]  = fork();
         
     if(forkRetNums[i] == 0)
-    { // La création du fils s'est-elle correctement produite ?
+    {
+        /*
+        // La création du fils s'est-elle correctement produite ?
         printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
         // a = 10 mais seulement la variable 'a' du fils et non celle du père
         a = a + 5;
@@ -169,6 +171,7 @@ int main(int argc, char **argv) {
         printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
         printf("\n\nCe signal indique qu'un processus fils s'est arrêté ou a fini son exécution. Par défaut ce signal est ignoré. SIGHUP : n°1");
         printf("\n\nUn processus qui effectue une division par zéro reçoit un signal SIGFPE : n°8");
+        */
         
         //continueProgram();
         while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
