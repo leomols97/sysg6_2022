@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     int a = 5, b = 8;
     
     // Nombre de duplication qui seront effectuées
-    int nbForks = 5;
+    int nbForks = 100;
     
     // Récupérer la valeur de retour des fork
     int forkRetNums[10];
@@ -144,6 +144,7 @@ int main(int argc, char **argv) {
         
     if(forkRetNums[i] == 0)
     {
+        printf("Ceci est le process fils et le PID est : %d\n", getpid());
         /*
         // La création du fils s'est-elle correctement produite ?
         printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
