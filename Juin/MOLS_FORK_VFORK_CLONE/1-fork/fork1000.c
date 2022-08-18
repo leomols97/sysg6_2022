@@ -14,8 +14,8 @@
 
 
 
-// Pour compiler avec les threads :
-// gcc -pthread -o fork fork.c
+// Pour compiler avec les threads et que les fonctions mathématiques soient reconnues par le compilateur (grâce à l'option '-lm'):
+// gcc -pthread -o fork fork.c -lm
 
 
 // Nombre de duplication qui seront effectuées via 'fork'
