@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
     for (unsigned int i = 0; i < nbForks; i++)
     {
         write_into_file(fileName, fileNameSize, " Parent ");
-        forkRetNums[i] = vfork();
+        forkRetNums[i] = fork();
         
         write_into_file(fileName, fileNameSize, " Fils\n");
         if(forkRetNums[i] == 0)
