@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     int a = 5, b = 8;
     
     // Nombre de duplication qui seront effectuées
-    int nbForks = 5;
+    int nbForks = 100;
     
     // Récupérer la valeur de retour des fork
     int forkRetNums[10];
