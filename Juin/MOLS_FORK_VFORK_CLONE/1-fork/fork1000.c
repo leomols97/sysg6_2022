@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <math.h>
 
 
 
@@ -17,11 +18,13 @@
 // gcc -pthread -o fork fork.c
 
 
-// Nombre de duplication qui seront effectuées
+// Nombre de duplication qui seront effectuées via 'fork'
 int nbForks = 10;
 
-// Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
-// l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
+/**
+ Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
+ l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
+ */
 void continueProgram()
 {
     printf("Pour continuer le programme, entrez 'continue' ou 'c' : ");
@@ -33,46 +36,19 @@ void continueProgram()
             numberCounter++;
 }
 
-// Cette fonction permet de réserver de la mémoire en RAM
-int lock_memory(char * address, size_t size)
-{
-    //https://linuxhint.com/mlock-2-c-function/
-    unsigned long page_offset, page_size;
-    page_size = sysconf(_SC_PAGE_SIZE);
-    page_offset = (unsigned long) address % page_size;
-    address -= page_offset; // adjust address to pageboundary
-    size += page_offset; // adjust size with page_offset
-    return (mlock(address, size));
-}
+/**
+ Cette fonction écrit dans un fichier une chaine reçue en paramètre
 
-// Cette fonction permet de libérer la mémoire réservée au process en question
-int unlock_memory(char * address, size_t size)
+ @param fileName Le nom du fichier dans lequel écrire
+ @param fileNameSize La taille du nom du fichier (en comptant l'extension) dans lequel écrire
+ @param whatToWrite Ce que la fonction va écrire dans le fichier
+ */
+void write_into_file(char fileName[], int fileNameSize, char whatToWrite[])
 {
-    //https://linuxhint.com/mlock-2-c-function/
-    unsigned long page_offset, page_size;
-    page_size = sysconf(_SC_PAGE_SIZE);
-    page_offset = (unsigned long) address % page_size;
-    address -= page_offset; // adjust address to pageboundary
-    size += page_offset; // adjust size with page_offset
-    return (munlock(address, size));
-}
-
-void write_into_file()
-{
-    FILE *out_file = fopen("fork1000.txt", "w"); // write only
-    
-    // test for files not existing.
-    if (out_file == NULL)
-    {
-        printf("Error! Could not open file\n");
-        exit(-1); // must include stdlib.h
-    }
-    
-    // write to file vs write to screen
-    fprintf(out_file, "This is a test for the fork with %d processes\n", nbForks); // write to file
-    
-    fprintf(stdout, "This is a test for the fork with %d processes\n", nbForks); // write to screen
-    printf(         "This is a test for the fork with %d processes\n", nbForks); // write to screen
+    char nameOfFile = fileName[fileNameSize];
+    FILE * forksOutFilePointer = fopen(fileName,"a");
+    fputs(whatToWrite, forksOutFilePointer);
+    fclose(forksOutFilePointer);
 }
 
 
@@ -83,8 +59,9 @@ void write_into_file()
  signal(SIGINT, SIG_DFL);
  }*/
 
-// Cette fonction a pour but d'être exécutée
-// lorsque son nom est spécifié comme argument dans pthread_create()
+/**
+ Cette fonction a pour but d'être exécutée lorsque son nom est spécifié comme argument dans pthread_create()
+ */
 void *threadCreation(void *arg)
 {
     printf("Fonction liée à la création de thread appelée \n");
@@ -103,6 +80,16 @@ void *threadCreation(void *arg)
  *  Donc, les variablses du père ne sont pas modifiées
  */
 int main(int argc, char **argv) {
+    
+    // Calcule la longueur du nombre 'nbForks'
+    int nbForksLength = floor(log10(abs(nbForks))) + 1;
+    // Calcule la taille du nom du fichier avec son extension '.txt'
+    int fileNameSize = 8 + nbForksLength;
+    printf("fileNameSize = %d ", fileNameSize);
+    char fileName[15];
+    // Construit le nom du fichier dans lequel le programme va écrire
+    snprintf(fileName, sizeof(fileName), "fork%d.txt", nbForks);
+    
     printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
            
            "D    en sommeil non interruptible (normalement entrées et sorties) ;\n"
@@ -127,8 +114,8 @@ int main(int argc, char **argv) {
     // Entiers à augmenter dans le fils pour prouver l'espace d'adressage commun
     int a = 5, b = 8;
     
-    // Récupérer la valeur de retour des fork
-    int forkRetNums[10];
+    // Récupérer la valeur de retour des nbForks fork
+    int forkRetNums[nbForks];
     
     printf("PID du père = %d\n", getpid());
     printf("Ces 2 variables sont créées et initialisées par le père :\n");
@@ -159,40 +146,14 @@ int main(int argc, char **argv) {
     //continueProgram();
     for (unsigned int i = 0; i < nbForks; i++)
     {
-        write_into_file();
+        remove(fileName); // To have an empty file
+        write_into_file(fileName, fileNameSize, " Parent ");
         forkRetNums[i]  = fork();
         
         if(forkRetNums[i] == 0)
         {
+            write_into_file(fileName, fileNameSize, " Fils ");
             printf("Ceci est le process fils et le PID est : %d\n", getpid());
-            /*
-             // La création du fils s'est-elle correctement produite ?
-             printf("Le processus fils vient d'être créé. La suite est affichée par le fils.\n");
-             // a = 10 mais seulement la variable 'a' du fils et non celle du père
-             a = a + 5;
-             printf("Maintenant, a = %d et ce, uniquement dans l'espace d'adressage du fils\n", a);
-             
-             // b = 10 mais seulement la variable 'b' du fils et non celle du père
-             b = b + 2;
-             printf("Maintenant, b = %d et ce, uniquement dans l'espace d'adressage du fils\n", b);
-             
-             //lock_memory();
-             
-             printf("PID (du fils, donc) = %d\n", getpid());
-             printf("PID du père = %d\n", getppid());
-             printf("a + b = %d.\n", a + b);
-             printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-             printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'.\nLe 'L' signifie que de la mémoire est verrouillée en RAM par le process !\nLe 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés\n\n");
-             printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. "
-             "Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
-             printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
-             "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
-             printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
-             
-             printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
-             printf("\n\nCe signal indique qu'un processus fils s'est arrêté ou a fini son exécution. Par défaut ce signal est ignoré. SIGHUP : n°1");
-             printf("\n\nUn processus qui effectue une division par zéro reçoit un signal SIGFPE : n°8");
-             */
             
             //continueProgram();
             while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera

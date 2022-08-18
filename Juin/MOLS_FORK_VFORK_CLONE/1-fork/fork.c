@@ -17,8 +17,10 @@
 // gcc -pthread -o fork fork.c
 
 
-// Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
-// l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
+/**
+ Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
+ l'exécution du programme pour lui laisser le temps de faire les manipulations qu'il désire
+ */
 void continueProgram()
 {
 	printf("Pour continuer le programme, entrez 'continue' ou 'c' : ");
@@ -30,8 +32,12 @@ void continueProgram()
         		numberCounter++;
 }
 
-// Cette fonction permet de réserver de la mémoire en RAM
-int lock_memory(char * address, size_t size)
+/**
+ Cette fonction permet de réserver de la mémoire en RAM
+ 
+ @param addressPpour réserver les adresses en mémoire
+ @param size Pour la taille de la mémoire à allouer
+ */int lock_memory(char * address, size_t size)
 {
 	//https://linuxhint.com/mlock-2-c-function/
 	unsigned long page_offset, page_size;
@@ -42,8 +48,12 @@ int lock_memory(char * address, size_t size)
 	return (mlock(address, size));
 }
 
-// Cette fonction permet de libérer la mémoire réservée au process en question
-int unlock_memory(char * address, size_t size)
+/**
+ Cette fonction permet de libérer la mémoire réservée au process en question
+
+ @param address Pour libérer les adresses en mémoire
+ @param size Pour la taille de la mémoire à libérer
+ */int unlock_memory(char * address, size_t size)
 {
 	//https://linuxhint.com/mlock-2-c-function/
 	unsigned long page_offset, page_size;
@@ -61,8 +71,9 @@ int unlock_memory(char * address, size_t size)
 	signal(SIGINT, SIG_DFL);
 }*/
 
-// Cette fonction a pour but d'être exécutée
-// lorsque son nom est spécifié comme argument dans pthread_create()
+/**
+ Cette fonction a pour but d'être exécutée lorsque son nom est spécifié comme argument dans pthread_create()
+ */
 void *threadCreation(void *arg)
 {
     printf("Fonction liée à la création de thread appelée \n");
