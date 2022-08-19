@@ -40,7 +40,7 @@ void continueProgram()
  Cette fonction permet de charger le contenu d'un fichier en RAM.
  la ligne avec 'fclose' est délibérément mise en commentaire pour que nous puissions
  voir la quantité de mémoire prise par le process en RAM
-
+ 
  @param address Pour libérer les adresses en mémoire
  @param size Pour la taille de la mémoire à libérer
  */
@@ -111,11 +111,11 @@ int main(int argc, char **argv) {
            "s    meneur de session ;\n"
            "l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;\n"
            "+    dans le groupe de processus au premier plan.\n\n\n\n\n\n\n");
-           
-           
-           
     
-
+    
+    
+    
+    
     
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n Ceci permettra d'observer que 5 lignes seront créées dans le tableau du résultat de la commande car fork() crée des process à part entière.\n\n");
     continueProgram();
@@ -127,101 +127,67 @@ int main(int argc, char **argv) {
     
     // Obligé de faire une suite de vfork en if car, lors d'un vforkµ
     // Le père est mis en pause et l'espace d'adressage est partagé avec le père
-        vforkRetNums[0] = vfork();
-        if (vforkRetNums[0] == 0)
+    vforkRetNums[0] = vfork();
+    if (vforkRetNums[0] == 0)
+    {
+        printf("Ceci est le process fils et le PID est : %d\n", getpid());
+        read_file("BigText.txt");
+        vforkRetNums[1] = vfork();
+        if (vforkRetNums[1] == 0)
         {
+            printf("Ceci est le process fils et le PID est : %d\n", getpid());
+            read_file("BigText.txt");
+            vforkRetNums[2] = vfork();
+            if (vforkRetNums[2] == 0)
+            {
                 printf("Ceci est le process fils et le PID est : %d\n", getpid());
                 read_file("BigText.txt");
-		vforkRetNums[1] = vfork();
-        	if (vforkRetNums[1] == 0)
-        	{
+                vforkRetNums[3] = vfork();
+                if (vforkRetNums[3] == 0)
+                {
+                    printf("Ceci est le process fils et le PID est : %d\n", getpid());
+                    read_file("BigText.txt");
+                    vforkRetNums[4] = vfork();
+                    if (vforkRetNums[4] == 0)
+                    {
                         printf("Ceci est le process fils et le PID est : %d\n", getpid());
                         read_file("BigText.txt");
-			vforkRetNums[2] = vfork();
-        		if (vforkRetNums[2] == 0)
-                        {
-                                printf("Ceci est le process fils et le PID est : %d\n", getpid());
-                                read_file("BigText.txt");
-				vforkRetNums[3] = vfork();
-			        if (vforkRetNums[3] == 0)
-                                {
-                                        printf("Ceci est le process fils et le PID est : %d\n", getpid());
-                                        read_file("BigText.txt");
-					vforkRetNums[4] = vfork();
-				        if (vforkRetNums[4] == 0)
-				        {
-			                        printf("Ceci est le process fils et le PID est : %d\n", getpid());
-                                        	read_file("BigText.txt");
-                                        	while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-            exit(0);
-        }
-        else if (vforkRetNums[i] > 0)
-        {  // Est-ce le process parent ?
-            printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        }
-        else
-        { // Y a-t-il eu une erreur lors de la création du process fils ?
-            printf("Problème durant la duplication\n");
-            exit(EXIT_FAILURE);
-        }
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-            exit(0);
-        }
-        else if (vforkRetNums[i] > 0)
-        {  // Est-ce le process parent ?
-            printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        }
-        else
-        { // Y a-t-il eu une erreur lors de la création du process fils ?
-            printf("Problème durant la duplication\n");
-            exit(EXIT_FAILURE);
-        }
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-            exit(0);
-        }
-        else if (vforkRetNums[i] > 0)
-        {  // Est-ce le process parent ?
-            printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        }
-        else
-        { // Y a-t-il eu une erreur lors de la création du process fils ?
-            printf("Problème durant la duplication\n");
-            exit(EXIT_FAILURE);
-        }
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-            exit(0);
-        }
-        else if (vforkRetNums[i] > 0)
-        {  // Est-ce le process parent ?
-            printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        }
-        else
-        { // Y a-t-il eu une erreur lors de la création du process fils ?
-            printf("Problème durant la duplication\n");
-            exit(EXIT_FAILURE);
-        }
-        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
-            exit(0);
-        }
-        else if (vforkRetNums[i] > 0)
-        {  // Est-ce le process parent ?
-            printf("Ceci est le process parent et le PID est : %d\n", getpid());
-        }
-        else
-        { // Y a-t-il eu une erreur lors de la création du process fils ?
-            printf("Problème durant la duplication\n");
-            exit(EXIT_FAILURE);
-        }
-        
-        
-        
-        
-                                        	
-        if(vforkRetNums[i] == 0)
-        {  // Est-ce le process fils ?
-            printf("Ceci est le process fils et le PID est : %d\n", getpid());
-            
-            //continueProgram();
+                        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
+                        exit(0);
+                    }
+                    else if (vforkRetNums[i] > 0)
+                    {  // Est-ce le process parent ?
+                        printf("Ceci est le process parent et le PID est : %d\n", getpid());
+                    }
+                    else
+                    { // Y a-t-il eu une erreur lors de la création du process fils ?
+                        printf("Problème durant la duplication\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
+                    exit(0);
+                }
+                else if (vforkRetNums[i] > 0)
+                {  // Est-ce le process parent ?
+                    printf("Ceci est le process parent et le PID est : %d\n", getpid());
+                }
+                else
+                { // Y a-t-il eu une erreur lors de la création du process fils ?
+                    printf("Problème durant la duplication\n");
+                    exit(EXIT_FAILURE);
+                }
+                while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
+                exit(0);
+            }
+            else if (vforkRetNums[i] > 0)
+            {  // Est-ce le process parent ?
+                printf("Ceci est le process parent et le PID est : %d\n", getpid());
+            }
+            else
+            { // Y a-t-il eu une erreur lors de la création du process fils ?
+                printf("Problème durant la duplication\n");
+                exit(EXIT_FAILURE);
+            }
             while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
             exit(0);
         }
@@ -234,6 +200,18 @@ int main(int argc, char **argv) {
             printf("Problème durant la duplication\n");
             exit(EXIT_FAILURE);
         }
+        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
+        exit(0);
+    }
+    else if (vforkRetNums[i] > 0)
+    {  // Est-ce le process parent ?
+        printf("Ceci est le process parent et le PID est : %d\n", getpid());
+    }
+    else
+    { // Y a-t-il eu une erreur lors de la création du process fils ?
+        printf("Problème durant la duplication\n");
+        exit(EXIT_FAILURE);
+    }
     
     // Code du père
     wait(0); // Pour éviter de faire du fils un zombie
@@ -241,7 +219,7 @@ int main(int argc, char **argv) {
     printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n");
     printf("PID (du père, donc) = %d\n", getpid());
     printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
-
+    
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
     printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");

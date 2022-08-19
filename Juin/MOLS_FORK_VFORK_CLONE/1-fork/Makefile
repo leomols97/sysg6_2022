@@ -6,7 +6,7 @@ fork: fork.c
 	gcc -pthread -o fork fork.c
 	
 fork1000: fork1000.c
-	gcc -pthread -o fork fork.c -lm
+	gcc -o fork1000 fork1000.c -lm
 	
 clean:
-	$(RM) fork
+	$(RM) fork fork1000
