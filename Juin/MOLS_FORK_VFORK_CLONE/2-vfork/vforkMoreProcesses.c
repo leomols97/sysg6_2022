@@ -69,6 +69,19 @@ void read_file(char fileName[])
 }
 
 /**
+ Crée un fichier text de près de 10Mo
+ */
+void create10MiBFile()
+{
+    FILE * fp=fopen("BigFile.txt", "w");
+    for (unsigned int i = 0; i < 550000; i++) // 550000 to get to 10Mo with the string to put in
+    {
+        fprintf(fp, "forkMoreProcesses\n");
+    }
+    fclose(fp);
+}
+
+/**
  * Le FORK duplique l'aspace d'adressage.
  * Donc, le fils fera les additions de son côté, dans son propre espace d'adressage
  *
@@ -106,6 +119,8 @@ int main(int argc, char **argv) {
     
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n\n");
     continueProgram();
+    
+    create10MiBFile();
     
     // Récupérer la valeur de retour des nbVforks vfork
     int vforkRetNums[nbVforks];

@@ -38,6 +38,9 @@ void continueProgram()
             numberCounter++;
 }
 
+/**
+ Crée un fichier text de près de 10Mo
+ */
 void create10MiBFile()
 {
     FILE * fp=fopen("BigFile.txt", "w");
@@ -145,15 +148,13 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
         if(i == nbForks - 1)
-        	    printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n\n");
-        //wait((void*)(intptr_t) forkRetNums[i]);
-
+                printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n\n");
     }
     // Code du père
     // Cette boucle est pour éviter de créer des zombies en les tuant via un autre terminal
         for (unsigned int i = 0; i < nbForks; i++)
         {
-        	wait((void*)(intptr_t) forkRetNums[i]);
+            wait((void*)(intptr_t) forkRetNums[i]);
         }
     printf("\nLes fils sont terminés\n");
     

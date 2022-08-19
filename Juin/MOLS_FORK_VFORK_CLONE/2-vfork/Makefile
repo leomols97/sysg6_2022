@@ -12,4 +12,4 @@ vforkMoreProcesses: vforkMoreProcesses.c
 	gcc -o vforkMoreProcesses vforkMoreProcesses.c -lm
 
 clean:
-	$(RM) vfork vforkParentPAUSED vforkMoreProcesses
+	$(RM) vfork vforkParentPAUSED vforkMoreProcesses BigFile.txt
