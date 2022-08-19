@@ -40,40 +40,11 @@ void continueProgram()
 
 void create10MiBFile()
 {
-    /*int fd;
-    int result;
-    
-    fd = open("BigFile.txt", O_WRONLY | O_CREAT, (mode_t)0600);
-    if (fd == -1) {
-        perror("Error opening file for writing");
+    FILE * fp=fopen("BigFile.txt", "w");
+    for (unsigned int i = 0; i < 550000; i++) // 550000 to get to 10Mo with the string to put in
+    {
+        fprintf(fp, "forkMoreProcesses\n");
     }
-    
-    /* Stretch the file size.
-     * Note that the bytes are not actually written,
-     * and cause no IO activity.
-     * Also, the diskspace is not even used
-     * on filesystems that support sparse files.
-     * (you can verify this with 'du' command)
-     * 9.999.999 is for 10MiB
-     */
-    /*result = lseek(fd, 9999999, SEEK_SET);
-    if (result == -1) {
-        close(fd);
-        perror("Error calling lseek() to 'stretch' the file");
-    }
-    
-    /* write just one byte at the end */
-    /*result = write(fd, "forkMoreProcesses\n", 1);
-    if (result < 0) {
-        close(fd);
-        perror("Error writing a byte at the end of the file");
-    }
-    
-    close(fd);
-    */
-    
-    FILE *fp=fopen("BigFile.txt", "w");
-    ftruncate(fileno(fp), 1024*1024);
     fclose(fp);
 }
 
