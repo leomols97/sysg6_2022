@@ -9,4 +9,4 @@ forkMoreProcesses: forkMoreProcesses.c
 	gcc -o forkMoreProcesses forkMoreProcesses.c -lm
 	
 clean:
-	$(RM) fork forkMoreProcesses
+	$(RM) fork forkMoreProcesses BigFile.txt
