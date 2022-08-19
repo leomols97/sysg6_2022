@@ -38,11 +38,8 @@ void continueProgram()
 
 /**
  Cette fonction permet de charger le contenu d'un fichier en RAM.
- la ligne avec 'fclose' est délibérément mise en commentaire pour que nous puissions
- voir la quantité de mémoire prise par le process en RAM
- 
- @param address Pour libérer les adresses en mémoire
- @param size Pour la taille de la mémoire à libérer
+
+ @param fileName Pour le nom du fichier à lire
  */
 void read_file(char fileName[])
 {
@@ -68,7 +65,7 @@ void read_file(char fileName[])
     } while (ch != EOF);
     
     // Ferme le fichier
-    //fclose(ptr);
+    fclose(ptr);
 }
 
 /**
@@ -82,16 +79,6 @@ void read_file(char fileName[])
  *  Donc, les variablses du père ne sont pas modifiées
  */
 int main(int argc, char **argv) {
-    
-    // Calcule la longueur du nombre 'nbForks'
-    int nbForksLength = floor(log10(abs(nbForks))) + 1;
-    // Calcule la taille du nom du fichier avec son extension '.txt'
-    int fileNameSize = 8 + nbForksLength;
-    printf("fileNameSize = %d ", fileNameSize);
-    char fileName[15];
-    // Construit le nom du fichier dans lequel le programme va écrire
-    snprintf(fileName, sizeof(fileName), "fork%d.txt", nbForks);
-    remove(fileName); // Pour avoir un fichier vide et pouvoir écrire en mode append dedans
     
     printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
            
@@ -117,15 +104,15 @@ int main(int argc, char **argv) {
     
     
     
-    printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n Ceci permettra d'observer que 5 lignes seront créées dans le tableau du résultat de la commande car fork() crée des process à part entière.\n\n");
+    printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n\n");
     continueProgram();
     
     // Récupérer la valeur de retour des nbVforks vfork
     int vforkRetNums[nbVforks];
     
     printf("PID du père = %d\n", getpid());
-    
-    // Obligé de faire une suite de vfork en if car, lors d'un vforkµ
+            
+    // Nécessaire de faire une suite de vfork en if car, lors d'un vfork
     // Le père est mis en pause et l'espace d'adressage est partagé avec le père
     vforkRetNums[0] = vfork();
     if (vforkRetNums[0] == 0)
@@ -150,12 +137,14 @@ int main(int argc, char **argv) {
                     vforkRetNums[4] = vfork();
                     if (vforkRetNums[4] == 0)
                     {
-                        printf("Ceci est le process fils et le PID est : %d\n", getpid());
                         read_file("BigText.txt");
-                        while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
+                        printf("Ceci est le process fils et le PID est : %d\n", getpid());
+                        printf("\nVous pouvez observer que, dans le tableau de la commande 'top', une seule ligne concernant ce programme a été créée. Cela signifie que vfork() a créé des process en créant des threads. A ce stade, les fils créés par vfork ne sont que des threads. Ils deviendront des process lorsque les fils fils appelleront une fonction de la famille exec().\n\n");
+			printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
+			while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
                         exit(0);
                     }
-                    else if (vforkRetNums[i] > 0)
+                    else if (vforkRetNums[4] > 0)
                     {  // Est-ce le process parent ?
                         printf("Ceci est le process parent et le PID est : %d\n", getpid());
                     }
@@ -164,10 +153,12 @@ int main(int argc, char **argv) {
                         printf("Problème durant la duplication\n");
                         exit(EXIT_FAILURE);
                     }
+                    printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
+    wait((void*)(intptr_t) vforkRetNums[4]); // Eviter de faire du fils un zombie
                     while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
                     exit(0);
                 }
-                else if (vforkRetNums[i] > 0)
+                else if (vforkRetNums[3] > 0)
                 {  // Est-ce le process parent ?
                     printf("Ceci est le process parent et le PID est : %d\n", getpid());
                 }
@@ -176,10 +167,12 @@ int main(int argc, char **argv) {
                     printf("Problème durant la duplication\n");
                     exit(EXIT_FAILURE);
                 }
+                printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
+    wait((void*)(intptr_t) vforkRetNums[3]); // Eviter de faire du fils un zombie
                 while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
                 exit(0);
             }
-            else if (vforkRetNums[i] > 0)
+            else if (vforkRetNums[2] > 0)
             {  // Est-ce le process parent ?
                 printf("Ceci est le process parent et le PID est : %d\n", getpid());
             }
@@ -188,10 +181,12 @@ int main(int argc, char **argv) {
                 printf("Problème durant la duplication\n");
                 exit(EXIT_FAILURE);
             }
+            printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
+    wait((void*)(intptr_t) vforkRetNums[2]); // Eviter de faire du fils un zombie
             while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
             exit(0);
         }
-        else if (vforkRetNums[i] > 0)
+        else if (vforkRetNums[1] > 0)
         {  // Est-ce le process parent ?
             printf("Ceci est le process parent et le PID est : %d\n", getpid());
         }
@@ -200,10 +195,12 @@ int main(int argc, char **argv) {
             printf("Problème durant la duplication\n");
             exit(EXIT_FAILURE);
         }
+        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
+    wait((void*)(intptr_t) vforkRetNums[1]); // Eviter de faire du fils un zombie
         while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
         exit(0);
     }
-    else if (vforkRetNums[i] > 0)
+    else if (vforkRetNums[0] > 0)
     {  // Est-ce le process parent ?
         printf("Ceci est le process parent et le PID est : %d\n", getpid());
     }
@@ -214,15 +211,15 @@ int main(int argc, char **argv) {
     }
     
     // Code du père
-    wait(0); // Pour éviter de faire du fils un zombie
+    wait((void*)(intptr_t) vforkRetNums[0]); // Eviter de faire du fils un zombie
     printf("Les fils sont terminés\n");
-    printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n");
-    printf("PID (du père, donc) = %d\n", getpid());
-    printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
+    printf("\n\nAu fur et à mesure que vous killiez les process un à un, vous avez pu observer que la mémoire occupée par le process courant n'a pas diminué, ce qui prouve que l'espace d'adressage est partagé entre un process père et un process fils si le moyen de duplication de process est 'vfork()' !\n");
+    printf("\n\nPID (du père, donc) = %d\n", getpid());
+    printf("\nPPID (id du process à l'origine de la création du programme) = %d\n", getppid());
     
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill %d' dans une autre fenêtre de terminal ou faites un CTRL+C ici. Vous verrez alors dans l'affichage généré par la commande 'top' que la mémoire occupée par le process courant est libérée\n", getpid());
     
     while(1){} // Simplement pour faire attendre le père. Un simple 'ps -aux' montrera son état
     

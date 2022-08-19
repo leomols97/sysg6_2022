@@ -38,11 +38,8 @@ void continueProgram()
 
 /**
  Cette fonction permet de charger le contenu d'un fichier en RAM.
- la ligne avec 'fclose' est délibérément mise en commentaire pour que nous puissions
- voir la quantité de mémoire prise par le process en RAM
 
- @param address Pour libérer les adresses en mémoire
- @param size Pour la taille de la mémoire à libérer
+ @param fileName Pour le nom du fichier à lire
  */
 void read_file(char fileName[])
 {
@@ -68,7 +65,7 @@ void read_file(char fileName[])
     } while (ch != EOF);
     
     // Ferme le fichier
-    //fclose(ptr);
+    fclose(ptr);
 }
 
 /**
@@ -82,15 +79,6 @@ void read_file(char fileName[])
  *  Donc, les variablses du père ne sont pas modifiées
  */
 int main(int argc, char **argv) {
-    
-    // Calcule la longueur du nombre 'nbForks'
-    int nbForksLength = floor(log10(abs(nbForks))) + 1;
-    // Calcule la taille du nom du fichier avec son extension '.txt'
-    int fileNameSize = 8 + nbForksLength;
-    char fileName[15];
-    // Construit le nom du fichier dans lequel le programme va écrire
-    snprintf(fileName, sizeof(fileName), "fork%d.txt", nbForks);
-    remove(fileName); // Pour avoir un fichier vide et pouvoir écrire en mode append dedans
     
     printf("\n\n\n\nCODES D'ÉTAT DE PROCESSUS \nVoici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :\n\n"
            
@@ -142,17 +130,23 @@ int main(int argc, char **argv) {
             printf("Problème durant la duplication\n");
             exit(EXIT_FAILURE);
         }
+        if(i == nbForks - 1)
+        	    printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n\n");
+        //wait((void*)(intptr_t) forkRetNums[i]);
+
     }
     // Code du père
-    wait(0); // Pour éviter de faire du fils un zombie
-    printf("Les fils sont terminés\n");
-    printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n");
+    // Cette boucle est pour éviter de créer des zombies en les tuant via un autre terminal
+        for (unsigned int i = 0; i < nbForks; i++)
+        {
+        	wait((void*)(intptr_t) forkRetNums[i]);
+        }
+    printf("\nLes fils sont terminés\n");
+    
     printf("PID (du père, donc) = %d\n", getpid());
     printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
 
-    printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-    
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
+    printf("\nVu que lorsque vous tuez 1 process via un autre terminal, l'entrée  liée au process de l'affichage généré par la commande 'top' disparait, cela prouve que chaque process a bien son propre espace d'adressage.\n\n");
     
     while(1){} // Simplement pour faire attendre le père. Un simple 'ps -aux' montrera son état
     
