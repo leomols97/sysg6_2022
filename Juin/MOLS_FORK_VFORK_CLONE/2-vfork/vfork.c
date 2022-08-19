@@ -123,7 +123,7 @@ int main(int argc, char **argv)
         
         // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
         
-        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
+        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
         while(1){} // Faire en sorte que le fils attende, mais en étant en état d'exécution. Un simple 'ps -aux' le montrera
         exit(0);
     }
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     printf("Vu que a + b = 20 dans le fils et que a + b = 20 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de vfork est celui du père car il est partagé avec le père.\n");
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill %d' dans une autre fenêtre de terminal ou faites un CTRL+C ici\n", getpid());
         
     pthread_join(tid, NULL);
     printf("Après les threads\n");
@@ -154,3 +154,81 @@ int main(int argc, char **argv)
     while(1){} // Simplement pour faire attendre le père que l'on fasse un 'ps -aux' pour pouvoir voir son état
     exit(0);
 }
+
+
+
+
+/*
+CODES D'ÉTAT DE PROCESSUS 
+Voici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :
+
+D    en sommeil non interruptible (normalement entrées et sorties) ;
+R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;
+S    en sommeil interruptible (en attente d'un événement pour finir) ;
+T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;
+W    pagination (non valable depuis le noyau 2.6.xx) ;
+X    tué (ne devrait jamais être vu) ;
+Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.
+
+Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :
+
+<    haute priorité (non poli pour les autres utilisateurs) ;
+N    basse priorité (poli pour les autres utilisateurs) ;
+L    les pages du processus sont verrouillées en mémoire;
+s    meneur de session ;
+l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;
++    dans le groupe de processus au premier plan.
+
+
+
+
+
+
+PID du père = 98625
+Ces 2 variables sont créées et initialisées par le père :
+a = 5
+b = 8
+Pour continuer le programme, entrez 'continue' ou 'c' : c
+
+Ceci est avant que le père ne crée un thread
+
+Pour continuer le programme, entrez 'continue' ou 'c' : c
+Fonction liée à la création de thread appelée 
+Fonction liée à la création de thread appelée 
+Fonction liée à la création de thread appelée 
+Le processus fils vient d'être créé. La suite est affichée par le fils.
+Maintenant, a = 10 et ce, dans l'espace d'adressage du fils qui est aussi celui du père
+Maintenant, b = 10 et ce, dans l'espace d'adressage du fils qui est aussi celui du père
+PID (du fils, donc) = 98629
+PID du père = 98625
+a + b = 20.
+
+Dans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !
+
+Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'.
+Le 'L' signifie que de la mémoire est verrouillée en RAM par le process !
+Le 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés
+
+RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.
+
+VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.
+
+
+Dans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98629' !
+Ceci est le process parent et le PID est : 98625
+Le fils est terminé
+PID (du père, donc) = 98625
+PPID (id du process à l'origine de la création du programme) = 3126
+a + b = 20.
+Vu que a + b = 20 dans le fils et que a + b = 20 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de vfork est celui du père car il est partagé avec le père.
+
+Dans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !
+
+
+
+Le programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill 98625' dans une autre fenêtre de terminal ou faites un CTRL+C ici
+Terminated
+*/

@@ -163,7 +163,67 @@ int main(int argc, char **argv) {
 
     printf("\nVu que lorsque vous tuez 1 process via un autre terminal, l'entrée  liée au process de l'affichage généré par la commande 'top' disparait, cela prouve que chaque process a bien son propre espace d'adressage.\n\n");
     
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill %d' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n", getpid());
+    
     while(1){} // Simplement pour faire attendre le père. Un simple 'ps -aux' montrera son état
     
     exit(0);
 }
+
+
+
+
+CODES D'ÉTAT DE PROCESSUS 
+Voici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :
+
+D    en sommeil non interruptible (normalement entrées et sorties) ;
+R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;
+S    en sommeil interruptible (en attente d'un événement pour finir) ;
+T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;
+W    pagination (non valable depuis le noyau 2.6.xx) ;
+X    tué (ne devrait jamais être vu) ;
+Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.
+
+Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :
+
+<    haute priorité (non poli pour les autres utilisateurs) ;
+N    basse priorité (poli pour les autres utilisateurs) ;
+L    les pages du processus sont verrouillées en mémoire;
+s    meneur de session ;
+l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;
++    dans le groupe de processus au premier plan.
+
+
+
+
+
+
+
+Dans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !
+ Ceci permettra d'observer que 5 lignes seront créées dans le tableau du résultat de la commande car fork() crée des process à part entière.
+
+Pour continuer le programme, entrez 'continue' ou 'c' : c
+PID du père = 98535
+Ceci est le process parent et le PID est : 98535
+Ceci est le process fils et le PID est : 98536
+Ceci est le process parent et le PID est : 98535
+Ceci est le process fils et le PID est : 98537
+Ceci est le process parent et le PID est : 98535
+Ceci est le process fils et le PID est : 98538
+Ceci est le process parent et le PID est : 98535
+Ceci est le process fils et le PID est : 98539
+Ceci est le process parent et le PID est : 98535
+
+
+Les fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !
+
+Ceci est le process fils et le PID est : 98540
+
+Les fils sont terminés
+PID (du père, donc) = 98535
+PPID (id du process à l'origine de la création du programme) = 3126
+
+Vu que lorsque vous tuez 1 process via un autre terminal, l'entrée  liée au process de l'affichage généré par la commande 'top' disparait, cela prouve que chaque process a bien son propre espace d'adressage.
+
+Terminated
+

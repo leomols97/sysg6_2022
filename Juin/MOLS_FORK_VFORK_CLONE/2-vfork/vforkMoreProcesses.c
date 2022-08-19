@@ -73,7 +73,7 @@ void read_file(char fileName[])
  */
 void create10MiBFile()
 {
-    FILE * fp=fopen("BigFile.txt", "w");
+    FILE * fp = fopen("BigFile.txt", "w");
     for (unsigned int i = 0; i < 550000; i++) // 550000 to get to 10Mo with the string to put in
     {
         fprintf(fp, "forkMoreProcesses\n");
@@ -133,26 +133,26 @@ int main(int argc, char **argv) {
     if (vforkRetNums[0] == 0)
     {
         printf("Ceci est le process fils et le PID est : %d\n", getpid());
-        read_file("BigText.txt");
+        read_file("BigFile.txt");
         vforkRetNums[1] = vfork();
         if (vforkRetNums[1] == 0)
         {
             printf("Ceci est le process fils et le PID est : %d\n", getpid());
-            read_file("BigText.txt");
+            read_file("BigFile.txt");
             vforkRetNums[2] = vfork();
             if (vforkRetNums[2] == 0)
             {
                 printf("Ceci est le process fils et le PID est : %d\n", getpid());
-                read_file("BigText.txt");
+                read_file("BigFile.txt");
                 vforkRetNums[3] = vfork();
                 if (vforkRetNums[3] == 0)
                 {
                     printf("Ceci est le process fils et le PID est : %d\n", getpid());
-                    read_file("BigText.txt");
+                    read_file("BigFile.txt");
                     vforkRetNums[4] = vfork();
                     if (vforkRetNums[4] == 0)
                     {
-                        read_file("BigText.txt");
+                        read_file("BigFile.txt");
                         printf("Ceci est le process fils et le PID est : %d\n", getpid());
                         printf("\nVous pouvez observer que, dans le tableau de la commande 'top', une seule ligne concernant ce programme a été créée. Cela signifie que vfork() a créé des process en créant des threads. A ce stade, les fils créés par vfork ne sont que des threads. Ils deviendront des process lorsque les fils fils appelleront une fonction de la famille exec().\n\n");
 			printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).\n\nPour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
@@ -240,3 +240,90 @@ int main(int argc, char **argv) {
     
     exit(0);
 }
+
+
+CODES D'ÉTAT DE PROCESSUS 
+Voici les différentes valeurs que les indicateurs de sortie s, stat et state (en-tête « STAT » ou « S ») afficheront pour décrire l'état d'un processus :
+
+D    en sommeil non interruptible (normalement entrées et sorties) ;
+R    s'exécutant ou pouvant s'exécuter (dans la file d'exécution) ;
+S    en sommeil interruptible (en attente d'un événement pour finir) ;
+T    arrêté, par un signal de contrôle des tâches ou parce qu'il a été tracé ;
+W    pagination (non valable depuis le noyau 2.6.xx) ;
+X    tué (ne devrait jamais être vu) ;
+Z    processus zombie (<defunct>), terminé mais pas détruit par son parent.
+
+Pour les formats BSD et quand le mot-clé stat est utilisé, les caractères supplémentaires suivants peuvent être affichés :
+
+<    haute priorité (non poli pour les autres utilisateurs) ;
+N    basse priorité (poli pour les autres utilisateurs) ;
+L    les pages du processus sont verrouillées en mémoire;
+s    meneur de session ;
+l    possède plusieurs processus légers (« multi-thread », utilisant CLONE_THREAD comme NPTL pthreads le fait) ;
++    dans le groupe de processus au premier plan.
+
+
+
+
+
+
+
+Dans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !
+
+Pour continuer le programme, entrez 'continue' ou 'c' : c
+PID du père = 98674
+Ceci est le process fils et le PID est : 98675
+Ceci est le process fils et le PID est : 98676
+Ceci est le process fils et le PID est : 98678
+Ceci est le process fils et le PID est : 98679
+Ceci est le process fils et le PID est : 98680
+
+Vous pouvez observer que, dans le tableau de la commande 'top', une seule ligne concernant ce programme a été créée. Cela signifie que vfork() a créé des process en créant des threads. A ce stade, les fils créés par vfork ne sont que des threads. Ils deviendront des process lorsque les fils fils appelleront une fonction de la famille exec().
+
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).
+
+Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98680' !
+Ceci est le process parent et le PID est : 98679
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).
+
+Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98679' !
+Ceci est le process parent et le PID est : 98678
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).
+
+Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98678' !
+Ceci est le process parent et le PID est : 98676
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).
+
+Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98676' !
+Ceci est le process parent et le PID est : 98675
+
+
+Le fils est en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire utilisée par l'espace des process lié à ce programme (puisque l'espace d'adressage est partagé entre le père et le fils).
+
+Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill 98675' !
+Ceci est le process parent et le PID est : 98674
+Les fils sont terminés
+
+
+Au fur et à mesure que vous killiez les process un à un, vous avez pu observer que la mémoire occupée par le process courant n'a pas diminué, ce qui prouve que l'espace d'adressage est partagé entre un process père et un process fils si le moyen de duplication de process est 'vfork()' !
+
+
+PID (du père, donc) = 98674
+
+PPID (id du process à l'origine de la création du programme) = 3126
+
+Dans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !
+
+
+
+Le programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill 98674' dans une autre fenêtre de terminal ou faites un CTRL+C ici. Vous verrez alors dans l'affichage généré par la commande 'top' que la mémoire occupée par le process courant est libérée
+Terminated
+
