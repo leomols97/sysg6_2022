@@ -38,7 +38,7 @@ void continueProgram()
 
 /**
  Cette fonction écrit dans un fichier une chaine reçue en paramètre
-
+ 
  @param fileName Le nom du fichier dans lequel écrire
  @param fileNameSize La taille du nom du fichier (en comptant l'extension) dans lequel écrire
  @param whatToWrite Ce que la fonction va écrire dans le fichier
@@ -49,6 +49,34 @@ void write_into_file(char fileName[], int fileNameSize, char whatToWrite[])
     FILE * forksOutFilePointer = fopen(fileName, "a");
     fputs(whatToWrite, forksOutFilePointer);
     fclose(forksOutFilePointer);
+}
+
+void read_file(char fileName[])
+{
+    FILE* ptr;
+    char ch;
+    
+    // Opening file in reading mode
+    ptr = fopen(fileName, "r");
+    
+    if (NULL == ptr) {
+        printf("file can't be opened \n");
+    }
+    
+    //printf("Content of this file is : \n");
+    
+    // Printing what is written in file
+    // character by character using loop.
+    do {
+        ch = fgetc(ptr);
+        printf("%c", ch);
+        
+        // Checking if character is not EOF.
+        // If it is EOF stop eading.
+    } while (ch != EOF);
+    
+    // Closing the file
+    //fclose(ptr);
 }
 
 
@@ -141,12 +169,13 @@ int main(int argc, char **argv) {
     for (unsigned int i = 0; i < nbForks; i++)
     {
         write_into_file(fileName, fileNameSize, " Parent ");
+        read_file("BigText.txt");
         forkRetNums[i] = fork();
         
         write_into_file(fileName, fileNameSize, " Fils\n");
         if(forkRetNums[i] == 0)
         {
-//            write_into_file(fileName, fileNameSize, " Fils\n");
+            //            write_into_file(fileName, fileNameSize, " Fils\n");
             printf("Ceci est le process fils et le PID est : %d\n", getpid());
             
             //continueProgram();
