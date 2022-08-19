@@ -140,13 +140,13 @@ int main(int argc, char **argv)
     wait(0); // Pour éviter de faire du fils un zombie
     printf ("Le fils est terminé\n");
     printf("PID (du père, donc) = %d\n", getpid());
-    printf("PPID = %d\n", getppid());
+    printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
     // La somme est bien de 20 puisque la somme fut faite par le fils avec les mêmes variables que celles du père
     printf("a + b = %d.\n", a + b);
     printf("Vu que a + b = 20 dans le fils et que a + b = 20 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de vfork est celui du père car il est partagé avec le père.\n");
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
         
     pthread_join(tid, NULL);
     printf("Après les threads\n");

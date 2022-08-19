@@ -53,7 +53,8 @@ void continueProgram()
 
  @param address Pour libérer les adresses en mémoire
  @param size Pour la taille de la mémoire à libérer
- */int unlock_memory(char * address, size_t size)
+ */
+int unlock_memory(char * address, size_t size)
 {
 	//https://linuxhint.com/mlock-2-c-function/
 	unsigned long page_offset, page_size;
@@ -63,13 +64,6 @@ void continueProgram()
 	size += page_offset; // adjust size with page_offset
 	return (munlock(address, size));
 }
-
-// Cette fonction devrait permettre de changer la valeur d'un signal d'un process
-/*void signal_handler(int signal_nb)
-{
-	printf("\nChange le numéro d'un signal\n");
-	signal(SIGINT, SIG_DFL);
-}*/
 
 /**
  Cette fonction a pour but d'être exécutée lorsque son nom est spécifié comme argument dans pthread_create()
@@ -192,7 +186,7 @@ int main(int argc, char **argv) {
     wait(0); // Pour éviter de faire du fils un zombie
     printf ("Le fils est terminé\n");
     printf("PID (du père, donc) = %d\n", getpid());
-    printf("PPID = %d\n", getppid());
+    printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
     // La somme est bien de 13 et non 20 puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
     printf("a + b = %d.\n", a + b);
     printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
@@ -203,7 +197,7 @@ int main(int argc, char **argv) {
     else
     	printf ("Memory unlocked in RAM\n");
     	
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
 
     pthread_join(tid, NULL);
     printf("After Thread\n");

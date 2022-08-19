@@ -19,7 +19,7 @@
 
 
 // Nombre de duplication qui seront effectuées via 'fork'
-int nbForks = 1;
+int nbForks = 5;
 
 /**
  Cette fonction permet à l'utilisateur de choisir à quel moment reprendre
@@ -37,64 +37,38 @@ void continueProgram()
 }
 
 /**
- Cette fonction écrit dans un fichier une chaine reçue en paramètre
- 
- @param fileName Le nom du fichier dans lequel écrire
- @param fileNameSize La taille du nom du fichier (en comptant l'extension) dans lequel écrire
- @param whatToWrite Ce que la fonction va écrire dans le fichier
- */
-void write_into_file(char fileName[], int fileNameSize, char whatToWrite[])
-{
-    char nameOfFile = fileName[fileNameSize];
-    FILE * forksOutFilePointer = fopen(fileName, "a");
-    fputs(whatToWrite, forksOutFilePointer);
-    fclose(forksOutFilePointer);
-}
+ Cette fonction permet de charger le contenu d'un fichier en RAM.
+ la ligne avec 'fclose' est délibérément mise en commentaire pour que nous puissions
+ voir la quantité de mémoire prise par le process en RAM
 
+ @param address Pour libérer les adresses en mémoire
+ @param size Pour la taille de la mémoire à libérer
+ */
 void read_file(char fileName[])
 {
     FILE* ptr;
     char ch;
     
-    // Opening file in reading mode
+    // Ouvre le fichier en mode lecture
     ptr = fopen(fileName, "r");
     
     if (NULL == ptr) {
-        printf("file can't be opened \n");
+        printf("Le fichier ne peut être ouvert \n");
     }
     
-    //printf("Content of this file is : \n");
-    
-    // Printing what is written in file
-    // character by character using loop.
+    // Charge ce qui est dans le fichier
+    // caractère par caractère
     do {
         ch = fgetc(ptr);
-        printf("%c", ch);
+        // Ceci permet d'afficher le contenu du fichier
+        //printf("%c", ch);
         
-        // Checking if character is not EOF.
-        // If it is EOF stop eading.
+        // Regarde si la fin du fichier n'est pas atteinte
+        // Si la fin est atteinte, alors, la lecture s'arrête
     } while (ch != EOF);
     
-    // Closing the file
+    // Ferme le fichier
     //fclose(ptr);
-}
-
-
-// Cette fonction devrait permettre de changer la valeur d'un signal d'un process
-/*void signal_handler(int signal_nb)
- {
- printf("\nChange le numéro d'un signal\n");
- signal(SIGINT, SIG_DFL);
- }*/
-
-/**
- Cette fonction a pour but d'être exécutée lorsque son nom est spécifié comme argument dans pthread_create()
- */
-void *threadCreation(void *arg)
-{
-    printf("Fonction liée à la création de thread appelée \n");
-    sleep(50); // Ceci pour permettre d'avoir le temps de prouver que le fils n'hérite pas des threads du père ni en crée de nouveaux
-    return NULL;
 }
 
 /**
@@ -113,7 +87,6 @@ int main(int argc, char **argv) {
     int nbForksLength = floor(log10(abs(nbForks))) + 1;
     // Calcule la taille du nom du fichier avec son extension '.txt'
     int fileNameSize = 8 + nbForksLength;
-    printf("fileNameSize = %d ", fileNameSize);
     char fileName[15];
     // Construit le nom du fichier dans lequel le programme va écrire
     snprintf(fileName, sizeof(fileName), "fork%d.txt", nbForks);
@@ -140,42 +113,20 @@ int main(int argc, char **argv) {
     
     
     
-    // Entiers à augmenter dans le fils pour prouver l'espace d'adressage commun
-    int a = 5, b = 8;
+    printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n Ceci permettra d'observer que 5 lignes seront créées dans le tableau du résultat de la commande car fork() crée des process à part entière.\n\n");
+    continueProgram();
     
-    // Récupérer la valeur de retour des nbForks fork
+    // Récupérer la valeur de retour des nbForks fork dans un tableau
     int forkRetNums[nbForks];
     
     printf("PID du père = %d\n", getpid());
-    printf("Ces 2 variables sont créées et initialisées par le père :\n");
-    printf("a = %d\n", a);
-    printf("b = %d\n", b);
-    
-    continueProgram();
-    
-    printf("\nCeci est avant que le père ne crée un thread\n\n");
-    
-    continueProgram();
-    
-    pthread_t tid;
-    // Crée 3 threads
-    for (unsigned int i = 0; i < 3; i++)
-        pthread_create(&tid, NULL, threadCreation, (void *)&tid);
-    
-    printf("%s", "");
-    //printf("Les threads ont été créés par le père\n");
-    
-    //continueProgram();
     for (unsigned int i = 0; i < nbForks; i++)
     {
-        write_into_file(fileName, fileNameSize, " Parent ");
         read_file("BigText.txt");
         forkRetNums[i] = fork();
         
-        write_into_file(fileName, fileNameSize, " Fils\n");
         if(forkRetNums[i] == 0)
-        {
-            //            write_into_file(fileName, fileNameSize, " Fils\n");
+        {  // Est-ce le process fils ?
             printf("Ceci est le process fils et le PID est : %d\n", getpid());
             
             //continueProgram();
@@ -194,18 +145,14 @@ int main(int argc, char **argv) {
     }
     // Code du père
     wait(0); // Pour éviter de faire du fils un zombie
-    printf("Le fils est terminé\n");
+    printf("Les fils sont terminés\n");
+    printf("\n\nLes fils sont en train de tourner à l'infini via un 'while(1)' pour montrer la mémoire qu'ils occupent via la commande 'top' (cfr 'ps -aux'). Pour les arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill {$PID_du_premier_fils..$PID_su_dernier_fils' !\n");
     printf("PID (du père, donc) = %d\n", getpid());
-    printf("PPID = %d\n", getppid());
-    // La somme est bien de 13 et non 20 puisque la somme fut faite par le fils, mais uniquement avec ses propres variables et non celles du père
-    printf("a + b = %d.\n", a + b);
-    printf("Vu que a + b = 20 dans le fils et que a + b = 13 dans le père, cela prouve que l'espace d'adressage d'un process créé au moyen de fork n'est pas celui du père car il a été dupliqué par rapport à celui du père. Chaque process a donc ses propres variables,...\n");
+    printf("PPID (id du process à l'origine de la création du programme) = %d\n", getppid());
+
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
     
-    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C\n");
-    
-    pthread_join(tid, NULL);
-    printf("After Thread\n");
+    printf ("\n\nLe programme ne se termine pas pour laisser le temps de faire un 'ps -aux' et voir quels process sont en cours d'exécution et leurs états. Pour le terminer, faites un 'kill $PID' dans une autre fenêtre de terminal ou faites un CTRL + C ici\n");
     
     while(1){} // Simplement pour faire attendre le père. Un simple 'ps -aux' montrera son état
     
