@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <math.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 
@@ -50,7 +52,6 @@ void create10MiBFile()
     fd = open("BigFile.txt", O_WRONLY | O_CREAT, (mode_t)0600);
     if (fd == -1) {
         perror("Error opening file for writing");
-        return 1;
     }
     
     /* Stretch the file size.
@@ -64,7 +65,6 @@ void create10MiBFile()
     if (result == -1) {
         close(fd);
         perror("Error calling lseek() to 'stretch' the file");
-        return 1;
     }
     
     /* write just one byte at the end */
@@ -72,7 +72,6 @@ void create10MiBFile()
     if (result < 0) {
         close(fd);
         perror("Error writing a byte at the end of the file");
-        return 1;
     }
     
     close(fd);
