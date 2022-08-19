@@ -36,6 +36,15 @@ void continueProgram()
             numberCounter++;
 }
 
+void create10MiBFile()
+{
+    int X = 1024 * 1024 - 1;
+    FILE *fp = fopen("BigFile.txt", "w");
+    fseek(fp, X , SEEK_SET);
+    fputc('forkMoreProcesses\n', fp);
+    fclose(fp);
+}
+
 /**
  Cette fonction permet de charger le contenu d'un fichier en RAM.
 
@@ -104,13 +113,15 @@ int main(int argc, char **argv) {
     printf("\nDans une autre fenêtre de terminal, entrez la commande 'top' pour voir quels process sont en cours et plsu d'informations, dont leur utilisation de la mémoire et ce, en temps réel !\n Ceci permettra d'observer que 5 lignes seront créées dans le tableau du résultat de la commande car fork() crée des process à part entière.\n\n");
     continueProgram();
     
+    create10MiBFile();
+    
     // Récupérer la valeur de retour des nbForks fork dans un tableau
     int forkRetNums[nbForks];
     
     printf("PID du père = %d\n", getpid());
     for (unsigned int i = 0; i < nbForks; i++)
     {
-        read_file("BigText.txt");
+        read_file("BigFile.txt");
         forkRetNums[i] = fork();
         
         if(forkRetNums[i] == 0)
