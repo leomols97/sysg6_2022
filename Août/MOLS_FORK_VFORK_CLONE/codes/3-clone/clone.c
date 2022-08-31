@@ -24,34 +24,34 @@ static int child_func(void* arg)
     return 0;
 }
 
-// Cette fonction a pour but de montrer les informations liées à un même processus via son PID
-void processStatus(int pid)
-{
-    char parentProcessStatus[18] = "/proc/"; // 18 car si le PID est à 5 chiffres, alors, le tableau de char sera de longueur 18
-    
-    char *num;
-    char buff[100];
-
-    // Ce if permet de concaténer un pid_t à un char *
-    if (asprintf(&num, "%d", pid) == -1) {
-        perror("asprintf");
-    } else {
-        strcat(strcpy(buff, parentProcessStatus), num);
-    }
-
-    strcat(buff, "/status");
-    if (fork() == 0)
-	    execl("/bin/cat", "cat", buff, (char *)0);
-}
+//// Cette fonction a pour but de montrer les informations liées à un même process via son PID
+//void processStatus(int pid)
+//{
+//    char parentProcessStatus[18] = "/proc/"; // 18 car si le PID est à 5 chiffres, alors, le tableau de char sera de longueur 18
+//
+//    char *num;
+//    char buff[100];
+//
+//    // Ce if permet de concaténer un pid_t à un char *
+//    if (asprintf(&num, "%d", pid) == -1) {
+//        perror("asprintf");
+//    } else {
+//        strcat(strcpy(buff, parentProcessStatus), num);
+//    }
+//
+//    strcat(buff, "/status");
+//    if (fork() == 0)
+//	    execl("/bin/cat", "cat", buff, (char *)0);
+//}
 
 /**
  Ici, clone() est utilisé de deux manières : une fois avec le flag CLONE_VM (CLONE_VM = clone virtual memory) et une fois sans.
- Un buffer est passé dans le processus enfant, et le processus enfant y écrit un string.
- Une pile de taille 65536 ensuite allouée pour le processus enfant et une fonction qui vérifie si nous exécutons le fichier en utilisant l'option 'vm' (correspondant donc au flag 'CLONE_VM').
- De plus, un buffer de 100 octets est créé dans le processus parent et une chaîne y est copiée, puis, l'appel système clone() est exécuté et les erreurs sont vérifiées.
+ Un buffer est passé dans le process enfant, et le process enfant y écrit un string.
+ Une pile de taille 65536 ensuite allouée pour le process enfant et une fonction qui vérifie si nous exécutons le fichier en utilisant l'option 'vm' (correspondant donc au flag 'CLONE_VM').
+ De plus, un buffer de 100 octets est créé dans le process parent et une chaîne y est copiée, puis, l'appel système clone() est exécuté et les erreurs sont vérifiées.
 
- Lorsque d'une exécution sans l'argument 'vm' se produit, le flag CLONE_VM n'est pas actif et la mémoire virtuelle du processus parent est clonée dans le processus enfant.
- Le processus enfant peut accéder au message passé par le processus parent dans le buffer, mais tout ce qui est écrit dans le buffer par l'enfant n'est pas accessible par processus parent puisque la mémoire virtuelle est dupliquée pour être allouée au processus enfant.
+ Lorsqu'une exécution sans l'argument 'vm' se produit, le flag CLONE_VM n'est pas actif et la mémoire virtuelle du process parent est clonée dans le process enfant.
+ Le process enfant peut accéder au message passé par le process parent dans le buffer, mais tout ce qui est écrit dans le buffer par l'enfant n'est pas accessible par process parent puisque la mémoire virtuelle est dupliquée pour être allouée au process enfant.
  */
 int main(int argc, char** argv)
 {
@@ -75,16 +75,16 @@ int main(int argc, char** argv)
          */
 
         /**
-         Lorsque le processus enfant est créé avec clone(), il exécute la fonction fn(arg).
+         Lorsque le process enfant est créé avec clone(), il exécute la fonction fn(arg).
          (Cela diffère de fork(2) dans lequel l'exécution continue dans le fils à partir du point d'appel de fork(2).)
-         L'argument fn est un pointeur vers une fonction qui est appelée par le processus fils au début de son exécution. L'argument 'arg' est passé à la fonction fn.
+         L'argument fn est un pointeur vers une fonction qui est appelée par le process fils au début de son exécution. L'argument 'arg' est passé à la fonction fn.
          */
         /**
          CLONE_VM (depuis Linux 2.0)
-                      Si CLONE_VM est défini, le parent et l'enfant seront exécuté dans le même espace mémoire. En particulier les écritures mémoire effectuées par le parent ou par l'enfant sont également visibles dans l'autre processus.
-                      De plus, tout mappage ou démappage de mémoire effectué avec mmap(2) ou munmap(2) par le processus enfant ou appelant également affecte l'autre processus.
+                      Si CLONE_VM est défini, le parent et l'enfant seront exécuté dans le même espace mémoire. En particulier les écritures mémoire effectuées par le parent ou par l'enfant sont également visibles dans l'autre process.
+                      De plus, tout mappage ou démappage de mémoire effectué avec mmap(2) ou munmap(2) par le process enfant ou appelant également affecte l'autre process.
 
-                      Si CLONE_VM n'est pas défini, le processus enfant s'exécute dans un copie séparée de l'espace mémoire du processus appelant au moment de l'appel de clone. Les écritures effectuées par les mappages/démappages par un des processus n'affecte pas l'autre, comme avec fork(2).
+                      Si CLONE_VM n'est pas défini, le process enfant s'exécute dans un copie séparée de l'espace mémoire du process appelant au moment de l'appel de clone. Les écritures effectuées par les mappages/démappages par un des process n'affecte pas l'autre, comme avec fork(2).
          */
         flags |= CLONE_VM; // 'flags' vaudra 'CLONE_VM' ou non en fonction du fait que l'option 'vm' soit spécifiée ou non.
     }
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     strcpy(buffer, "Hello from parent"); // Ecrit 'hello from parent' dans le buffer
     
     int cloneRetNum;
-    // Clone le processus père
+    // Clone le process père
     // Seul appel à 'clone'. Pour avoir les différentes exécutions, il faut ajouter 'vm' comme argument lors de l'appel en ligne de commande
     // Vu que lorsque CLONE_VM est défini, l'espace d'adressage mémoire est partaé,
     // le buffer est le même pour le père et pour le fils, donc, le fils override ce que le père a écrit par 'Hello from child'

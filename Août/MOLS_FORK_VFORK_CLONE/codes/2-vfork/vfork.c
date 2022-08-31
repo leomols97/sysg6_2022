@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 //        printf("Value of vfork is %d.\n", vforkRetNum); // Indiquer la valeur de retour de la fonciton créant le process
         printf("a + b = %d.\n", a + b); // line b
         printf("\nDans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !\n\n");
-	printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'.\nLe 'L' signifie que de la mémoire est verrouillée en RAM par le process !\nLe 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés\n\n");
+	printf("Sous la section 'Status', vous pouvez voir que le statut du père est 'Dl+'.\nLe 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés\n\n");
         printf("RSS signifie Resident Set Size et montre la quantité de RAM utilisée au moment de la sortie de la commande. "
         	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
         printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
