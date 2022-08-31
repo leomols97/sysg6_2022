@@ -163,9 +163,9 @@ int main(int argc, char **argv) {
         	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
         printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
                 "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
-        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
+        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/%d/status' pour voir les informations du process !\n", getpid());
         
-        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill $PID' !\n");
+        printf("\n\nLe fils est en train de tourner à l'infini via un 'while(1)' pour prouver qu'il n'est pas en sommeil (cfr 'ps -aux'). Pour l'arrêter, dans une autre fenêtre de terminal, entrez la commande 'kill %d' !\n", getpid());
         printf("\n\nCe signal indique qu'un processus fils s'est arrêté ou a fini son exécution. Par défaut ce signal est ignoré. SIGHUP : n°1");
         printf("\n\nUn processus qui effectue une division par zéro reçoit un signal SIGFPE : n°8");
         

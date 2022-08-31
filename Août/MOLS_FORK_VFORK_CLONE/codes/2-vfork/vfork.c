@@ -119,7 +119,7 @@ int main(int argc, char **argv)
         	"Il convient également de noter qu'il affiche toute la pile de mémoire physiquement allouée.\n\n");
         printf("VSZ est l'abréviation de Virtual Memory Size. C'est la quantité totale de mémoire à laquelle un processus peut hypothétiquement accéder. "
                 "Il tient compte de la taille du binaire lui-même, de toutes les bibliothèques liées et de toutes les allocations de pile ou de tas.\n");
-        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/$PID/status' pour voir les informations du process !\n");
+        printf("\n\nDans une autre fenêtre de terminal, entrez la commande 'cat /proc/%d/status' pour voir les informations du process !\n", getpid());
         
         // wait est un processus bloquant. Donc, la suite ne sera pas exécutée tant qu'une condition ne sera pas remplie. Si l'on met un pointeur d'un nombre, alors, on pourra récupérer le code de terminaison du processus enfant. Pareil pour exit
         

@@ -1,21 +1,9 @@
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% University/School Laboratory Report
-% LaTeX Template
-% Version 4.0 (March 21, 2022)
-%
-% This template originates from:
-% https://www.LaTeXTemplates.com
-%
-% Authors:
+% Author:
 % Léopold Mols
 %
 % ATTENTION :
 % Pour pouvoir bénéficier de la table des matières, des liens,... Il faut compiler plusieurs fois le fichier template.tex au moyen de la commande 'pdflatex fork_vfork_clone.tex'
-%
-% Linux and Unix Users Group at Virginia Tech Wiki
-%
-% License:
-% CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -23,7 +11,7 @@
 %	PACKAGES AND DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-\documentclass[a4paper,17pt]{extarticle} 
+\documentclass[a4paper, 17pt]{extarticle} 
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -131,7 +119,10 @@
 
 \tableofcontents
 
-\section{Que sont-ils ?}
+\section{
+    \LARGE
+        Que sont-ils ?
+}
 fork(), vfork() et clone() permettent de créer des process s'exécutant sur un OS.
 \\\\
 Au démarrage d'un système UNIX (norme POSIX (Portable Operating System Interface et le X exprime l'héritage UNIX)), un seul process existe. UNIX est une famille de normes techniques définie depuis 1988 par l'Institute of Electrical and Electronics Engineers (IEEE), et formellement désignée par IEEE 1003. Ces normes ont émergé d'un projet de standardisation des interfaces de programmation des logiciels destinés à fonctionner sur les variantes du système d'exploitation UNIX).
@@ -488,7 +479,7 @@ a + b = 20.
 
 Dans une autre fenêtre de terminal, entrez la commande 'ps -aux' pour voir quel process est en cours et plus d'informations à leurs propos !
 
-Sous la section 'Status', vous pouvez voir que le statut du père est 'SLl+'.
+Sous la section 'Status', vous pouvez voir que le statut du père est 'Dl+'.
 Le 'L' signifie que de la mémoire est verrouillée en RAM par le process !
 Le 'l' signifie que le proccess possède plusieurs processus légers : les threads qu'il a créés
 
@@ -772,7 +763,10 @@ Child exited with status 0. buffer = "Hello from child"
 %	Aller plus loin
 %----------------------------------------------------------------------------------------
 
-\section{Aller plus loin}
+\section{
+    \LARGE
+        Aller plus loin
+}
 L’ajout de la fonction forkall() au standard a été rejeté. La fonction
 forkall() permet à tous les threads du parent d’être dupliqués dans l’enfant. 
 Cela permet aux threads de l’enfant de poursuivre le traitement et permet
@@ -800,18 +794,20 @@ Si l’argument des flags est à 0, alors forkx() aura le même comportement que
 %	Conclusion
 %----------------------------------------------------------------------------------------
 
-\section{Conclusion}
-A PARLER DANS LE POWERPOINT
-Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et appels système qui existent depuis longtemps. clone() a pris le relais de par sa puissance et sa modularité.
-\\Donc, pour tout programme un minimum lourd, il est meilleur d'implémenter vfork() ou clone() avec les flags nécessaires afin d'utiliser la mémoire virtuelle de manière pertinente et efficace.
-
-
+\section{
+    \LARGE
+        Conclusion
+}
+Pour finir, nous pouvons constater que fork() est vieux, mais encore utilisé également pour être enveloppé par des fonctions comme posix\_spawn() qui fait un fork()+exec(), que vfork() est dangereux et donc, de nouveau synonyme de fork() et que clone() est puissant car il permet de moduler la duplication de processus
 
 %----------------------------------------------------------------------------------------
 %	CODES
 %----------------------------------------------------------------------------------------
 
-\section{Codes}
+\section{
+    \LARGE
+        Codes
+}
 \subsection{FORK}
 \subsubsection{fork.c}
 \inputminted[linenos, fontsize=\small, breaklines]{c}{codes/fork.c}\label{codeFork}
@@ -844,7 +840,10 @@ Pour finir, nous pouvons constater que fork() et vfork() sont des fonctions et a
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-\section{Sources}
+\section{
+    \LARGE
+        Sources
+}
 \begin{sloppypar}
 \url{https://cpp.hotexamples.com/fr/examples/-/-/vfork/cpp-vfork-function-examples.html}\\
 \url{https://man7.org/linux/man-pages/man2/vfork.2.html}\\
